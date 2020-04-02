@@ -1,28 +1,31 @@
+from app import app
 import cx_Oracle
 import logging
+from flask import g
 
-class DatabaseConnection:
-    logger = logging.getLogger('DatabaseConnection')
+def connect_db(username='dazhi', password='Oracle233', address='oracle.cise.ufl.edu/orcl'):
+    """
+    Create a connection to db.
+    """
+    con = cx_Oracle.connect(username, password, address, encoding="utf-8")
+    return con
 
-    def __init__(self, username='dazhi', password='Oracle233', address='oracle.cise.ufl.edu/orcl'):
-        self.conn = cx_Oracle.connect(username, password, address, encoding="utf-8")
-        logger.info('Database connection established.')
+def get_db():
+    """
+    Create a new db connection if there is none for the current
+    application context.
 
-    def execute(self, sql):
-        with self.conn.cursor() as cursor:
-            cursor.execute(sql)
-
-    def fetchall(self, sql):
-        rows = None
-        with self.conn.cursor() as cursor:
-            cursor.execute(sql)
-            rows = cursor.fetchall()
-            self.conn.commit()
-        return rows
+    See also:
+        https://flask.palletsprojects.com/en/0.12.x/tutorial/dbcon/
+    """
+    if not hasattr(g, 'oracle_db'):
+        g.oracle_db = connect_db()
+    return g.oracle_db
     
-    def __del__(self):
-        if self.conn:
-            self.conn.close()
-
-if __name__ == '__main__':
-    db = DatabaseConnection()
+@app.teardown_appcontext
+def close_db(error):
+    """
+    Close db connection at the end of request.
+    """
+    if hasattr(g, 'oracle_db'):
+        g.oracle_db.close()
