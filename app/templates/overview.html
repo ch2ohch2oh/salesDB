@@ -1,16 +1,37 @@
 {% extends "dashboard.html" %}
 
-<!-- <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <title>Embed Demo</title>
-    {{ js_resources|indent(4)|safe }}
+{% block more_header %}
     {{ css_resources|indent(4)|safe }}
-    {{ plot_script|indent(4)|safe }}
-  </head>
-  <body>
-    {{ plot_div|indent(4)|safe }}
-  </body>
-</html> -->
+{% endblock %}
+
+{% block content %}
+
+    <div class="row mt-5">
+        <div class="col text-center">
+            <h5>Total Sales</h5>
+            <h3>{{ total_sales }}</h3>
+        </div>
+        <div class="col text-center">
+            <h5>Total Orders</h5>
+            <h3>{{ total_orders }}</h3>
+        </div>
+    </div>
+
+
+    <div class="row mt-5">
+        <div class="col-sm-6">
+            <h5>Revenue trends</h5>
+            {{ trend_div|indent(4)|safe }}
+        </div>
+        <div class="col-sm-6">
+            <h5>Categories</h5>
+            {{ cat_div|indent(4)|safe }}
+        </div>
+      </div>
+{% endblock %}
+
+{% block more_js %}
+    {{ js_resources|safe }}
+    {{ trend_script|safe }}
+    {{ cat_js|safe }}
+{% endblock %}
