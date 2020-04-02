@@ -7,6 +7,11 @@ from app.forms import LoginForm
 
 from .views.overview import overview
 from app.models import User, user_loader
+from app.db import get_db
+
+import logging
+
+# logger = logging.getLogger('salesDB')
 
 # @app.context_processor
 # def override_url_for():
@@ -65,3 +70,12 @@ def employee():
 @login_required
 def order():
     pass
+
+@app.route('/test/city')
+def test_city():
+    db = get_db()
+    cur = db.cursor()
+    cities = list(cur.execute('select * from city'))
+    # print(f'cities: {cities}')
+    return render_template('test_city.html', cities=cities)
+
