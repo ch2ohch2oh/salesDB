@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="">
+
+    <title>Sign In</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{{ url_for('static', filename='css/signin.css') }}" rel="stylesheet">
+</head>
+
+<body class="text-center">
+    <form class="form-signin" method="post" action="{{ url_for('login') }}">
+        {{ form.hidden_tag() }}
+        <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <span class="error text-danger mb-3">
+            {% for message in messages %}
+            {{ message }}
+            {% endfor %}
+        </span>
+        {% endif %}
+        {% endwith %}
+        <label for="username" class="sr-only">Email address</label>
+        <input type="text" id="username" name="username" class="form-control" placeholder="Username" required autofocus>
+        <label for="password" class="sr-only">Password</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+
+        <div class="checkbox mb-3">
+            <label>
+                <input type="checkbox" name="remember_me" value="remember_me"> Remember me
+            </label>
+        </div>
+
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        <p class="mt-5 mb-2 text-muted">Made for COP 5725</p>
+    </form>
+</body>
+
+</html>
