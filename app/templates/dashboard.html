@@ -8,22 +8,23 @@
   <meta name="author" content="">
   <link rel="icon" href="">
 
-  <title>Dashboard Template for Bootstrap</title>
+  <title>{% block title %}{% endblock %}</title>
 
-  <!-- Bootstrap core CSS -->
   <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
-
-  <!-- Custom styles for this template -->
-  <!-- <link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet"> -->
+  <link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"
+    rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 </head>
 
 <body>
   <nav class="navbar navbar-expand-sm navbar-light bg-light">
     <a class="navbar-brand" href="#">SalesDB</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-  
+
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
@@ -39,32 +40,46 @@
           <a class="nav-link" href="#">Employees</a>
         </li>
       </ul>
-      <a href="logout" class="pull-right">Logout</a>
+      <a href="logout" class="btn btn-light pull-right">Logout</a>
     </div>
   </nav>
 
+  <div class="container mt-5">
+    <form class="form-inline justify-content-center" action="overview" method="post">
+      <div class="form-group">
+        <label>Date range from</label>
+        <input name="date_start" id="date_start" type="date" class="form-control mx-sm-3 my-2">
+        <label>To</label>
+        <input name="date_end" id="date_end" type="date" class="form-control mx-sm-3 my-2">
+        <button type="submit" class="btn btn-primary my-2">GO!</button>
+      </div>
+    </form>
+    {% block content %} {% endblock %}
+  </div>
 
 
+  <footer class="footer">
+    <hr>
+    <div class="my-3 text-center">
+      <span class="text-muted">Copyright (c) 2020. Made with tears.</span>
+    </div>
+  </footer>
 
-  <!-- Bootstrap core JavaScript
-    ================================================== -->
-  <!-- Placed at the end of the document so the pages load faster -->
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-    crossorigin="anonymous"></script>
-  <!-- <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script> -->
-  <script src="https://unpkg.com/@popperjs/core@2"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
   <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-
-  <!-- Icons -->
-  <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
-  <script>
-    feather.replace()
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  {% if date_start and date_end %}
+  <script type="text/javascript">
+    $('#date_start').val("{{date_start}}");
+    $('#date_end').val("{{date_end}}");
+    console.log('Setting date range...');
   </script>
+  {% endif %}
+  {% block more_js %}{% endblock %}
 
-  <!-- Graphs -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
-  
 </body>
 
 </html>
