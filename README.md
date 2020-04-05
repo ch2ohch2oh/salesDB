@@ -9,11 +9,15 @@ Install requirements
 ```
 pip install -r requirements.txt
 ```
-Then
+Then (otherwise you cannot run the tests)
 ```
 python setup.py develop
 ```
 Run a few tests
 ```
 pytest
+```
+Then start the server with
+```
+flask run
 ```
