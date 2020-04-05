@@ -16,12 +16,12 @@ def overview():
     if app.debug:
         print(request.form)
     
-    date_start = request.form['date_start']
-    date_end = request.form['date_end']
-    if date_start == '':
-        date_start='1234-11-11'
-    if date_end == '':
-        date_end='4321-11-11'
+    # date_start = request.form['date_start']
+    # date_end = request.form['date_end']
+    # if date_start == '':
+    date_start='1234-11-11'
+    # if date_end == '':
+    date_end='4321-11-11'
     
     # init a basic bar chart:
     # http://bokeh.pydata.org/en/latest/docs/user_guide/plotting.html#bars
@@ -129,7 +129,7 @@ def revenue_by_cat():
             and sales.productID = product.productID 
             and product.productID = productcategory.categoryID
         group by productcategory.name
-        order by sum(sales.total) desc""")
+        order by sum(sales.total) desc""")  
     data = []
     for row in rows:
         data.append({'cat_name': row[0], 'revenue': row[1]})
