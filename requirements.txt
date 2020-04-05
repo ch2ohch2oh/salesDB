@@ -1,0 +1,14 @@
+bokeh==2.0.1
+cx-Oracle==7.3.0
+Flask==1.1.1
+Flask-Bootstrap==3.3.7.1
+Flask-Login==0.4.1
+Flask-Migrate==2.4.0
+Flask-Session==0.3.1
+Flask-SQLAlchemy==2.4.0
+Flask-WTF==0.14.3
+Jinja2==2.11.1
+numpy==1.18.1
+pandas==0.25.3
+Werkzeug==1.0.0
+WTForms==2.2.1
