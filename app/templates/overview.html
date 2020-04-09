@@ -19,15 +19,18 @@
 
 
     <div class="row mt-5">
-        <div class="col-sm-6">
+        <div class="col">
             <h5>Revenue trends</h5>
             {{ trend_div|indent(4)|safe }}
         </div>
-        <div class="col-sm-6">
-            <h5>Categories</h5>
-            {{ cat_div|indent(4)|safe }}
-        </div>
+
       </div>
+      <div class="row mt-5">
+      <div class="col">
+        <h5>Categories</h5>
+        {{ cat_div|indent(4)|safe }}
+    </div>
+</div>
 {% endblock %}
 
 {% block more_js %}
