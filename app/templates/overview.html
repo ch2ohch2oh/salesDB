@@ -1,40 +1,39 @@
 {% extends "dashboard.html" %}
 
 {% block more_header %}
-    {{ css_resources|indent(4)|safe }}
+{{ css_resources|indent(4)|safe }}
 {% endblock %}
 
 {% block content %}
 
-    <div class="row mt-5">
-        <div class="col text-center">
-            <h5>Total Sales</h5>
-            <h3>{{ total_sales }}</h3>
-        </div>
-        <div class="col text-center">
-            <h5>Total Orders</h5>
-            <h3>{{ total_orders }}</h3>
-        </div>
+<div class="row mt-5">
+    <div class="col text-center">
+        <h5>Total Sales</h5>
+        <h3>{{ total_sales }}</h3>
     </div>
+    <div class="col text-center">
+        <h5>Total Orders</h5>
+        <h3>{{ total_orders }}</h3>
+    </div>
+</div>
 
 
-    <div class="row mt-5">
-        <div class="col">
-            <h5>Revenue trends</h5>
-            {{ trend_div|indent(4)|safe }}
-        </div>
-
-      </div>
-      <div class="row mt-5">
-      <div class="col">
-        <h5>Categories</h5>
+<div class="row mt-5">
+    <div class="col">
+        <h5>Revenue trends</h5>
+        {{ trend_div|indent(4)|safe }}
+    </div>
+</div>
+<div class="row mt-5">
+    <div class="col">
+        <h5>Revenue by categories</h5>
         {{ cat_div|indent(4)|safe }}
     </div>
 </div>
 {% endblock %}
 
 {% block more_js %}
-    {{ js_resources|safe }}
-    {{ trend_script|safe }}
-    {{ cat_js|safe }}
+{{ js_resources|safe }}
+{{ trend_script|safe }}
+{{ cat_js|safe }}
 {% endblock %}
