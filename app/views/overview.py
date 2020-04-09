@@ -64,25 +64,34 @@ def overview():
     )
     return html
 
+
 def get_total_orders(date_start, date_end):
     """
     Return the total number of orders within given time range.
     """
     db = get_db()
     cur = db.cursor()
-    sql = f"select count(*) from sales where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD')"
-    print(f'SQL: {sql}')
-    rows = list(cur.execute(sql))
-
+    rows = list(cur.execute(
+        f"select count(*) from sales where salesdate between to_date({date_start}, 'YYYYMMDD') and to_date({date_end}, 'YYYYMMDD')"))
     print(rows)
-    return rows[0][0]
+    data = dict(total_orders=rows[0][0])
+    return jsonify(data)
 
+
+@app.route('/api/total_revenue', methods=['GET'])
 def get_total_revenue(date_start, date_end):
     """
     Return the total revenue within given time range.
     """
     db = get_db()
     cur = db.cursor()
+    rows = list(cur.execute(
+        f"select sum(total) from sales where salesdate between to_date({date_start}, 'YYYYMMDD') and to_date({date_end}, 'YYYYMMDD')"))
+    print(rows)
+    data = dict(total_revenue=rows[0][0])
+    return jsonify(data)
+
+def revenue_by_time():
     sql = f"select sum(total) from sales where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD')"
     print(f'SQL: {sql}')
     rows = list(cur.execute(sql))
@@ -95,8 +104,10 @@ def get_revenue_by_time(date_start, date_end):
     """
     db = get_db()
     cur = db.cursor()
+
     rows = cur.execute(f"select salesdate, sum(total) from sales where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD') group by salesdate order by salesdate")
     df = pd.DataFrame(columns=['date', 'revenue'])
+
     for row in rows:
         df.loc[len(df), :] = row
     df['date'] = pd.to_datetime(df['date'])
@@ -110,7 +121,7 @@ def get_revenue_by_category(date_start, date_end):
     cur = db.cursor()
     rows = cur.execute(
         f"""
-        select productcategory.name, sum(sales.total) 
+        select productcategory.name, sum(sales.total)
         from sales, product, productcategory
         where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD') 
             and sales.productID = product.productID 
