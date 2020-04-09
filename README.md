@@ -5,21 +5,18 @@ It is our course project for COP 5725. ORM model is
 not used due to the course requirement.
 
 # Evironment setup
-Install requirements
+1. Install requirements
 ```
 pip install -r requirements.txt
 ```
-Configure Oracle Instant Client following [ODPI-C Installation](https://oracle.github.io/odpi/doc/installation.html#macos)
+2. Configure Oracle Instant Client following [ODPI-C Installation](https://oracle.github.io/odpi/doc/installation.html#macos)
 
-Then (otherwise you cannot run the tests)
+3. Setup and run a few tests
 ```
 python setup.py develop
-```
-Run a few tests
-```
 pytest
 ```
-Then start the server with
+4. Start the server with
 ```
 flask run
 ```
