@@ -1,0 +1,39 @@
+{% extends "dashboard.html" %}
+
+{% block more_header %}
+{{ css_resources|indent(4)|safe }}
+{% endblock %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col text-center">
+        <h5>Most revenue</h5>
+        <h3>{{most_revenue_name}}</h3>
+    </div>
+    <div class="col text-center">
+        <h5>Most orders</h5>
+        <h3>{{most_orders_name}}</h3>
+    </div>
+</div>
+
+
+<div class="row mt-5">
+    <div class="col">
+        <h5>Revenue by employees</h5>
+        {{ div_revenue_total|indent(4)|safe }}
+    </div>
+
+</div>
+<div class="row mt-5">
+    <div class="col">
+        <h5>Orders by employees</h5>
+        {{ div_orders_total|indent(4)|safe }}
+    </div>
+</div>
+{% endblock %}
+
+{% block more_js %}
+{{ js_resources|safe }}
+{{ js_revenue_total|safe }}
+{{ js_orders_total|safe }}
+{% endblock %}
