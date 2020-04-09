@@ -48,9 +48,9 @@
     <form class="form-inline justify-content-center" action="overview" method="post">
       <div class="form-group">
         <label>Date range from</label>
-        <input name="date_start" id="date_start" type="date" class="form-control mx-sm-3 my-2">
+        <input name="date_start" id="date_start" type="date" class="form-control mx-sm-3 my-2" value="20180101">
         <label>To</label>
-        <input name="date_end" id="date_end" type="date" class="form-control mx-sm-3 my-2">
+        <input name="date_end" id="date_end" type="date" class="form-control mx-sm-3 my-2" value="20181212">
         <button type="submit" class="btn btn-primary my-2">GO!</button>
       </div>
     </form>
@@ -73,11 +73,12 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   {% if date_start and date_end %}
   <script type="text/javascript">
-    $('#date_start').val("{{date_start}}");
-    $('#date_end').val("{{date_end}}");
+    $('#date_start').val('{{date_start}}');
+    $('#date_end').val('{{date_end}}');
     console.log('Setting date range...');
   </script>
   {% endif %}
+
   {% block more_js %}{% endblock %}
 
 </body>
