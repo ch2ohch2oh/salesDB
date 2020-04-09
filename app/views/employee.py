@@ -34,11 +34,11 @@ def best_employee():
               group by employee.name
               order by sum(sales.total) desc)
         where rownum = 1"""))
-    data = dict(best_product=rows[0][0])
+    data = dict(best_employee=rows[0][0])
     return jsonify(data)
 
 @app.route('/api/avg_selling_per', methods=['GET'])
-def avg_selling_product():
+def avg_selling_per():
     """
     Return the average order numbers of each employee within the time range.
     """
@@ -55,13 +55,13 @@ def avg_selling_product():
                   and sales.employeeID = employee.employeeID
               group by employee.name
               order by count(sales.salesID) desc)"""))
-    data = dict(best_product=rows[0][0])
+    data = dict(avg_selling_per=rows[0][0])
     return jsonify(data)
 
 @app.route('/api/num_order_by_employee', methods=['GET'])
-def avg_selling_product():
+def num_order_by_employee():
     """
-    Return the average order numbers of each employee within the time range.
+    Return the order numbers and revenue of each employee within the time range.
     """
     date_start = request.args.get('date_start')
     date_end = request.args.get('date_end')
@@ -74,10 +74,10 @@ def avg_selling_product():
         where salesdate between to_date({date_start}, 'YYYYMMDD') and to_date({date_end}, 'YYYYMMDD')
             and sales.employeeID = employee.employeeID
         group by employee.name
-        order by count(sales.salesID) desc)"""))
+        order by count(sales.salesID) desc"""))
     data = []
     for row in rows:
-        data.append({'cat_name': row[0], 'revenue': row[1]})
+        data.append({'employee': row[0], 'order numbers': row[1], 'revenue': row[2]})
     return jsonify(data)
 
 # optional and under construction
@@ -100,5 +100,5 @@ def top5_employee_monthly():
         order by sum(sales.salesID) desc)"""))
     data = []
     for row in rows:
-        data.append({'cat_name': row[0], 'revenue': row[1]})
+        data.append({'employee': row[0], 'order number': row[1], 'revenue': row[2]})
     return jsonify(data)

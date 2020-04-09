@@ -4,8 +4,11 @@ from datetime import datetime
 
 from app import app
 from app.forms import LoginForm
-
+# import views
 from .views.overview import overview
+# from .views.customer import customer
+# from .views.employee import employee
+# from .views.order import order
 from app.models import User, user_loader
 from app.db import get_db
 

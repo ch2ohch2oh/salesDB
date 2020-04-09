@@ -8,11 +8,12 @@ from datetime import datetime
 
 from app.db import get_db
 
-
+'''
 @app.route('/order', methods=['GET', 'POST'])
 @login_required
 def order():
     pass
+'''
 
 # restful api
 @app.route('/api/best_product', methods=['GET'])
@@ -75,7 +76,7 @@ def num_order_by_cat():
         order by count(salesID) desc""")
     data = []
     for row in rows:
-        data.append({'cat_name': row[0], 'revenue': row[1]})
+        data.append({'category': row[0], 'order number': row[1]})
     return jsonify(data)
 
 @app.route('/api/max_avg_min_price_by_cat', methods=['GET'])
@@ -93,9 +94,8 @@ def max_avg_min_price_by_cat():
         from sales, product, productcategory
         where salesdate between to_date({date_start}, 'YYYYMMDD') and to_date({date_end}, 'YYYYMMDD')
             and sales.productID = product.productID
-            group by product.PRODUCTNAME
         group by productcategory.name""")
     data = []
     for row in rows:
-        data.append({'cat_name': row[0], 'revenue': row[1]})
+        data.append({'category': row[0], 'max price': row[1], 'avg price': row[2], 'min price': row[3]})
     return jsonify(data)

@@ -139,5 +139,6 @@ def revenue_by_cat():
         order by sum(sales.total) desc""")
     data = []
     for row in rows:
-        data.append({'cat_name': row[0], 'revenue': row[1]})
+        data.append({'category': row[0], 'revenue': row[1]})
     return jsonify(data)
+

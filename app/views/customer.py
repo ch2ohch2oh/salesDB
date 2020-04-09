@@ -27,10 +27,10 @@ def customer_by_geo():
         select count(customer.customerID) as num, city.zipcode as zipcode
         from customer, city
         where customer.city = city.cityID
-        group by city.zipcode)"""))
+        group by city.zipcode"""))
     data = []
     for row in rows:
-        data.append({'cat_name': row[0], 'revenue': row[1]})
+        data.append({'number': row[0], 'zipcode': row[1]})
     return jsonify(data)
 
 @app.route('/api/repeat_order_by_time', methods=['GET'])
@@ -69,7 +69,7 @@ def repeat_order_by_time():
     # for the same category, each row has same value for number_total
     data = []
     for row in rows:
-        data.append({'cat_name': row[0], 'revenue': row[1]})
+        data.append({'category': row[2], 'total orders': row[0], 'repeated orders': row[1]})
     return jsonify(data)
 
 # 需要给 customer table 添加随机性别，可以使用 excel 完成
@@ -93,7 +93,7 @@ def num_order_by_gender_cat():
         group by productcategory.name, customer.gender"""))
     data = []
     for row in rows:
-        data.append({'cat_name': row[0], 'revenue': row[1]})
+        data.append({'category': row[2], 'order number': row[0], 'gender': row[1]})
     return jsonify(data)
 
 # 需要 zipcode 的范围确定东西南北，大致确定
@@ -133,5 +133,5 @@ def num_order_by_geo():
         """))
     data = []
     for row in rows:
-        data.append({'cat_name': row[0], 'revenue': row[1]})
+        data.append({'category': row[2], 'region': row[0], 'order number': row[1]})
     return jsonify(data)
