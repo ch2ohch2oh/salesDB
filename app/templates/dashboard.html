@@ -27,7 +27,7 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
+        <li class="nav-item">
           <a class="nav-link" href="{{ url_for('overview') }}">Overview<span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item">
@@ -37,7 +37,7 @@
           <a class="nav-link" href="#">Customers</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Employees</a>
+          <a class="nav-link" href="{{ url_for('employees') }}">Employees</a>
         </li>
       </ul>
       <a href="logout" class="btn btn-light pull-right">Logout</a>
@@ -45,7 +45,7 @@
   </nav>
 
   <div class="container mt-5">
-    <form class="form-inline justify-content-center" action="overview" method="post">
+    <form class="form-inline justify-content-center" method="post">
       <div class="form-group">
         <label>Date range from</label>
         <input name="date_start" id="date_start" type="date" class="form-control mx-sm-3 my-2" value="20180101">
