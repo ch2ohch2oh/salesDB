@@ -74,7 +74,7 @@ def repeat_order_by_time():
 
 # 需要给 customer table 添加随机性别，可以使用 excel 完成
 @app.route('/api/num_order_by_gender_cat', methods=['GET'])
-def num_order_by_age_cat():
+def num_order_by_gender_cat():
     """
     Return the number of male and female purchasing orders for each category in time range.
     """
