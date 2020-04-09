@@ -9,6 +9,8 @@ Install requirements
 ```
 pip install -r requirements.txt
 ```
+Configure Oracle Instant Client following [ODPI-C Installation](https://oracle.github.io/odpi/doc/installation.html#macos)
+
 Then (otherwise you cannot run the tests)
 ```
 python setup.py develop

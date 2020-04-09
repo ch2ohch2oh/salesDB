@@ -8,6 +8,7 @@ from datetime import datetime
 
 from app.db import get_db
 
+
 @app.route('/overview', methods=['GET', 'POST'])
 @login_required
 def overview():
@@ -15,14 +16,14 @@ def overview():
 
     if app.debug:
         print(request.form)
-    
+
     # date_start = request.form['date_start']
     # date_end = request.form['date_end']
     # if date_start == '':
-    date_start='1234-11-11'
+    date_start = '1234-11-11'
     # if date_end == '':
-    date_end='4321-11-11'
-    
+    date_end = '4321-11-11'
+
     # init a basic bar chart:
     # http://bokeh.pydata.org/en/latest/docs/user_guide/plotting.html#bars
     rev_fig = figure(sizing_mode='scale_width')
@@ -34,7 +35,7 @@ def overview():
         color='navy'
     )
     trend_script, trend_div = components(rev_fig)
-    
+
     cat_fig = figure(sizing_mode='scale_width')
     cat_fig.vbar(
         x=[1, 2, 3, 4],
@@ -53,7 +54,6 @@ def overview():
     total_sales = 123123
     total_orders = 321321
 
-    
     html = render_template(
         'overview.html',
         trend_script=trend_script,
@@ -69,6 +69,7 @@ def overview():
     )
     return html
 
+# restful api
 @app.route('/api/total_orders', methods=['GET'])
 def total_orders():
     """
@@ -78,10 +79,12 @@ def total_orders():
     date_end = request.args.get('date_end')
     db = get_db()
     cur = db.cursor()
-    rows = list(cur.execute(f"select count(*) from sales where salesdate between to_date({date_start}, 'YYYYMMDD') and to_date({date_end}, 'YYYYMMDD')"))
+    rows = list(cur.execute(
+        f"select count(*) from sales where salesdate between to_date({date_start}, 'YYYYMMDD') and to_date({date_end}, 'YYYYMMDD')"))
     print(rows)
-    data = dict(total_orders = rows[0][0])
+    data = dict(total_orders=rows[0][0])
     return jsonify(data)
+
 
 @app.route('/api/total_revenue', methods=['GET'])
 def total_revenue():
@@ -92,10 +95,12 @@ def total_revenue():
     date_end = request.args.get('date_end')
     db = get_db()
     cur = db.cursor()
-    rows = list(cur.execute(f"select sum(total) from sales where salesdate between to_date({date_start}, 'YYYYMMDD') and to_date({date_end}, 'YYYYMMDD')"))
+    rows = list(cur.execute(
+        f"select sum(total) from sales where salesdate between to_date({date_start}, 'YYYYMMDD') and to_date({date_end}, 'YYYYMMDD')"))
     print(rows)
-    data = dict(total_revenue = rows[0][0])
+    data = dict(total_revenue=rows[0][0])
     return jsonify(data)
+
 
 @app.route('/api/revenue_by_time', methods=['GET'])
 def revenue_by_time():
@@ -106,11 +111,13 @@ def revenue_by_time():
     date_end = request.args.get('date_end')
     db = get_db()
     cur = db.cursor()
-    rows = cur.execute(f"select salesdate, sum(total) from sales where salesdate between to_date({date_start}, 'YYYYMMDD') and to_date({date_end}, 'YYYYMMDD') group by salesdate order by salesdate")
+    rows = cur.execute(
+        f"select salesdate, sum(total) from sales where salesdate between to_date({date_start}, 'YYYYMMDD') and to_date({date_end}, 'YYYYMMDD') group by salesdate order by salesdate")
     data = []
     for row in rows:
         data.append({'salesdate': row[0], 'revenue': row[1]})
     return jsonify(data)
+
 
 @app.route('/api/revenue_by_cat', methods=['GET'])
 def revenue_by_cat():
@@ -123,13 +130,13 @@ def revenue_by_cat():
     cur = db.cursor()
     rows = cur.execute(
         f"""
-        select productcategory.name, sum(sales.total) 
+        select productcategory.name, sum(sales.total)
         from sales, product, productcategory
-        where salesdate between to_date({date_start}, 'YYYYMMDD') and to_date({date_end}, 'YYYYMMDD') 
-            and sales.productID = product.productID 
+        where salesdate between to_date({date_start}, 'YYYYMMDD') and to_date({date_end}, 'YYYYMMDD')
+            and sales.productID = product.productID
             and product.productID = productcategory.categoryID
         group by productcategory.name
-        order by sum(sales.total) desc""")  
+        order by sum(sales.total) desc""")
     data = []
     for row in rows:
         data.append({'cat_name': row[0], 'revenue': row[1]})
