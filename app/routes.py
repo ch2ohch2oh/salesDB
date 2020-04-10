@@ -62,20 +62,6 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-@app.route('/customer', methods=['GET', 'POST'])
-@login_required
-def customer():
-    pass
-
-@app.route('/employee', methods=['GET', 'POST'])
-@login_required
-def employee():
-    pass
-
-@app.route('/order', methods=['GET', 'POST'])
-@login_required
-def order():
-    pass
 
 @app.route('/test/city')
 def test_city():

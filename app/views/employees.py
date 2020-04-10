@@ -16,6 +16,7 @@ import math
 @login_required
 def employees():
     """
+    
     """
     date_start = request.form.get('date_start', '2018-01-01')
     date_end = request.form.get('date_end', '2018-03-12')
@@ -67,6 +68,24 @@ def employees():
         date_end=date_end,
     )
     return html
+
+def get_employee_revenue_orders_total(date_start, date_end):
+    """
+
+    """
+    sql = f"""
+    select employee.name, sum(sales.total), count(*)
+    from sales, employee
+    where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD')
+        and sales.employeeID = employee.employeeID
+    group by employee.name
+    order by sum(sales.total) desc
+    """
+    rows = query(sql)
+    df = pd.DataFrame(rows, columns=['name', 'revenue', 'orders'])
+    print(df.head())
+    return df
+
 
 def get_employee_revenue_total(date_start, date_end):
     """

@@ -17,7 +17,7 @@ import pandas as pd
 def overview():
     """Render overview page
     
-    TODO: tooltips not working
+    TODO: improve tooltips style
     """
     
     date_start = request.form.get('date_start', '2018-01-01')
@@ -30,18 +30,27 @@ def overview():
     total_sales = get_total_revenue(date_start, date_end)
     total_orders = get_total_orders(date_start, date_end)
 
+    # Revenue over time
     rev_source = ColumnDataSource(get_revenue_by_time(date_start, date_end))
+    rev_hover = HoverTool(tooltips=[('Date', '@date{%F}'), ('Revenue', '@revenue{$0,0}')],
+        formatters={'@date': 'datetime'})
     rev_fig = figure(sizing_mode='scale_width', x_axis_type='datetime', height=200,
-        tooltips=[('date', '$date'), ('revenue', '$revenue')])
+        tools=[rev_hover],)
     rev_fig.line(x='date', y='revenue', source=rev_source)
     rev_fig.xaxis.axis_label_text_font_size = '20pt'
     rev_fig.yaxis.axis_label_text_font_size = '20pt'
     trend_script, trend_div = components(rev_fig)
     
+    # Revenue by categoreis
     cat_data = get_revenue_by_category(date_start, date_end)
-    cat_fig = figure(x_range = cat_data.category, sizing_mode='scale_width', height=200)
+    cat_source = ColumnDataSource(cat_data)
+    cat_hover = HoverTool(tooltips=[('Category', '@category'), ('Revenue', '@revenue{$0,0}')])
+    cat_fig = figure(x_range = cat_data.category, 
+        sizing_mode='scale_width', height=200,
+        tools=[cat_hover])
     # print(f'cat_data:\n {cat_data.head()}')
-    cat_fig.vbar(x=cat_data.category, top=cat_data.revenue, width=0.9)
+    cat_fig.vbar(x='category', top='revenue', source=cat_source, 
+        width=0.9, hover_color='red', hover_fill_alpha=0.8)
     cat_js, cat_div = components(cat_fig)
 
     # grab the static resources
