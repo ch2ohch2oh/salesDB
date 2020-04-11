@@ -1,6 +1,6 @@
 from app import app
 from bokeh.embed import components
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show, output_file
 from bokeh.resources import INLINE
 from bokeh.models import ColumnDataSource, HoverTool
 from flask import render_template, flash, redirect, url_for, request, jsonify, session
@@ -14,11 +14,11 @@ import pandas as pd
 
 
 @app.route('/order', methods=['GET', 'POST'])
+@login_required
 def order():
     '''
     Render order page
     '''
-
     date_start = request.form.get('date_start', '2018-01-01')
     date_end = request.form.get('date_end', '2018-03-12')
 
@@ -45,9 +45,9 @@ def order():
     price_hover = HoverTool(tooltips=[('Category', '@category'), ('Max price', '@max_price'), 
         ('Average price', '@avg_price'), ('Min price', '@min_price')])
     price_fig = figure(x_range = price_data.category, sizing_mode='scale_width', height=200, tools=[price_hover])
-    price_fig.line(x='category', y='max_price', source=price_source)
-    price_fig.line(x='category', y='avg_price', source=price_source)
-    price_fig.line(x='category', y='min_price', source=price_source)
+    price_fig.line(x='category', y='max_price', line_color="#1D91C0", line_width=2, source=price_source)
+    price_fig.line(x='category', y='avg_price', line_color="#FB8072", line_width=2, source=price_source)
+    price_fig.line(x='category', y='min_price', line_color="#CAB2D6", line_width=2, source=price_source)
     price_js, price_div = components(price_fig)
 
     # grab the static resources

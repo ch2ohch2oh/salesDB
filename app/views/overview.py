@@ -102,7 +102,6 @@ def get_revenue_by_time(date_start, date_end):
     group by salesdate order by salesdate
     """
     rows = query(sql)
-
     df = pd.DataFrame(columns=['date', 'revenue'])
     for row in rows:
         df.loc[len(df), :] = row
