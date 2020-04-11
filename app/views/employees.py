@@ -16,7 +16,7 @@ import math
 @login_required
 def employees():
     """
-    
+    Render employee page
     """
     date_start = request.form.get('date_start', '2018-01-01')
     date_end = request.form.get('date_end', '2018-03-12')
@@ -28,11 +28,11 @@ def employees():
     revenue_range = revenue_total.revenue.max() - revenue_total.revenue.min()
 
     fig_revenue_total = figure(sizing_mode='scale_width', height=200,
-        x_range=revenue_total.name,
-        y_range=(revenue_mean - revenue_range / 2 * 1.5, 
+        y_range=revenue_total.name,
+        x_range=(revenue_mean - revenue_range / 2 * 1.5, 
             revenue_mean + revenue_range / 2 * 1.5))
-    fig_revenue_total.vbar(x=revenue_total.name, 
-        top=revenue_total.revenue, width=0.9)
+    fig_revenue_total.hbar(y=revenue_total.name, 
+        right=revenue_total.revenue, height=0.5)
     fig_revenue_total.xaxis.major_label_orientation = math.pi/2
 
     orders_total = get_employee_orders_total(date_start, date_end)

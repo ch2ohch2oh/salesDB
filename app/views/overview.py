@@ -52,7 +52,7 @@ def overview():
     cat_fig.vbar(x='category', top='revenue', source=cat_source, 
         width=0.9, hover_color='red', hover_fill_alpha=0.8)
     cat_js, cat_div = components(cat_fig)
-
+ 
     # grab the static resources
     js_resources = INLINE.render_js()
     css_resources = INLINE.render_css()
@@ -102,7 +102,6 @@ def get_revenue_by_time(date_start, date_end):
     group by salesdate order by salesdate
     """
     rows = query(sql)
-
     df = pd.DataFrame(columns=['date', 'revenue'])
     for row in rows:
         df.loc[len(df), :] = row
