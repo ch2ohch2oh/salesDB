@@ -181,51 +181,36 @@ def get_num_order_by_geo(date_start, date_end):
     Return the number of orders in different geo region for each category in time range.
     """
     sql = f"""
-    with geo as
-        (select count(saleID) as order_number, city.zipcode as zipcode, productcategory.name as category
-        from customer, sales, product, productcategory, city
-        where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date({date_end}, 'YYYYMMDD')
-            and customer.customerID = sales.customerID
-            and sales.productID = product.productID
-            and product.categoryID = productcategory.categoryID
-            and customer.city = city.cityID)
-    select category, northest, east, southeast, north, south, west, southwest, northwest, middle
-    from (select count(salesID) as northeast, category
-          from gender_cat where zipcode between 0 and 19999
-          group by category)
-         join
-         (select count(salesID) as southeast, category
-          from gender_cat where zipcode between 30000 and 39999
-          group by category)
-         join
-         (select count(salesID) as north, category
-          from gender_cat where zipcode between 40000 and 59999
-          group by category)
-         join
-         (select count(salesID) as south, category
-          from gender_cat where zipcode between 70000 and 79999
-          group by category)
-         join
-         (select count(salesID) as east, category
-          from gender_cat where zipcode between 20000 and 29999
-          group by category)
-         join
-         (select count(salesID) as west, category
-          from gender_cat where zipcode between 88900 and 95000
-          group by category)
-         join
-         (select count(salesID) as southwest, category
-          from gender_cat where zipcode between 95001 and 96999
-          group by category)
-         join
-         (select count(salesID) as northwest, category
-          from gender_cat where zipcode between 97000 and 99999
-          group by category)
-         join
-         (select count(salesID) as middle, category
-          from gender_cat where zipcode between 60000 and 69999
-                or zipcode betwwen 80000 and 88899
-          group by category)
+    with gender_cat as
+        (select count(salesID) as order_num, city.zipcode as zipcode, productcategory.name as category
+         from customer, sales, product, productcategory, city
+         where salesdate between to_date('2018-01-01', 'YYYY-MM-DD') and to_date('2018-01-02', 'YYYY-MM-DD')
+             and customer.customerID = sales.customerID
+             and sales.productID = product.productID
+             and product.categoryID = productcategory.categoryID
+             and customer.city = city.cityID
+         group by zipcode, productcategory.name)
+    select
+        case when zipcode between 0 and 19999 then 'Northeast'
+        when zipcode between 20000 and 29999 then 'East'
+        when zipcode between 30000 and 39999 then 'Southeast'
+        when zipcode between 40000 and 59999 then 'North'
+        when zipcode between 70000 and 79999 then 'South'
+        when zipcode between 88900 and 95000 then 'West'
+        when zipcode between 95001 and 96999 then 'Southwest'
+        when zipcode between 97000 and 99999 then 'Nouthwest'
+        else 'Middle' end as range, sum(order_num), category
+    from gender_cat
+    group by
+        case when zipcode between 0 and 19999 then 'Northeast'
+        when zipcode between 20000 and 29999 then 'East'
+        when zipcode between 30000 and 39999 then 'Southeast'
+        when zipcode between 40000 and 59999 then 'North'
+        when zipcode between 70000 and 79999 then 'South'
+        when zipcode between 88900 and 95000 then 'West'
+        when zipcode between 95001 and 96999 then 'Southwest'
+        when zipcode between 97000 and 99999 then 'Nouthwest'
+        else 'Middle' end, category
     """
     rows = query(sql)
     df = pd.DataFrame(columns=['category', 'northeast', 'east', 'southeast', 'north', 'south', 'west', 'southwest', 
