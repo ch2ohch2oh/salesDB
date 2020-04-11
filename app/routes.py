@@ -8,10 +8,8 @@ from app.forms import LoginForm
 
 from .views.overview import overview
 from .views.employees import employees
-
-# from .views.customer import customer
-# from .views.employee import employee
-# from .views.order import order
+from .views.order import order
+from .views.customer import customer
 from app.models import User, user_loader
 from app.db import get_db
 

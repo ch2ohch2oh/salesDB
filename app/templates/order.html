@@ -1,0 +1,40 @@
+{% extends "dashboard.html" %}
+
+{% block more_header %}
+{{ css_resources|indent(4)|safe }}
+{% endblock %}
+
+{% block content %}
+
+<div class="row mt-5">
+    <div class="col text-center">
+        <h5>Best product</h5>
+        <h3>{{ best_product }}</h3>
+    </div>
+    <div class="col text-center">
+        <h5>Average price</h5>
+        <h3>{{ avg_price }}</h3>
+    </div>
+</div>
+
+
+<div class="row mt-5">
+    <div class="col">
+        <h5>Order number by categories</h5>
+        {{ order_num_div|indent(4)|safe }}
+    </div>
+    
+</div>
+<div class="row mt-5">
+    <div class="col">
+        <h5>Max, avg, min price by categories</h5>
+        {{ price_div|indent(4)|safe }}
+    </div>
+</div>
+{% endblock %}
+
+{% block more_js %}
+{{ js_resources|safe }}
+{{ order_num_js|safe }}
+{{ price_js|safe }}
+{% endblock %}

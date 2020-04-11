@@ -52,7 +52,7 @@ def overview():
     cat_fig.vbar(x='category', top='revenue', source=cat_source, 
         width=0.9, hover_color='red', hover_fill_alpha=0.8)
     cat_js, cat_div = components(cat_fig)
-
+ 
     # grab the static resources
     js_resources = INLINE.render_js()
     css_resources = INLINE.render_css()
