@@ -3,6 +3,7 @@ from bokeh.embed import components
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
 from bokeh.models import NumeralTickFormatter
+from bokeh.models import ColumnDataSource, HoverTool
 from flask import render_template, flash, redirect, url_for, request, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
 from datetime import datetime
@@ -21,60 +22,61 @@ def employees():
     """
     date_start = request.form.get('date_start', '2018-01-01')
     date_end = request.form.get('date_end', '2018-01-31')
-
+    
+    # most revenue
     revenue_total = get_employee_revenue_total(date_start, date_end)
-
     most_revenue_name = revenue_total.loc[0, 'name']
-    revenue_mean = revenue_total.revenue.mean()
     revenue_range = revenue_total.revenue.max() - revenue_total.revenue.min()
 
     # revenue by employee
-    fig_revenue_total = figure(sizing_mode='scale_width', height=300, y_range=revenue_total.name,
-        x_range=(revenue_range / 2 * 1.5, revenue_mean + revenue_range / 2 * 1.5))
-    fig_revenue_total.hbar(y=revenue_total.name, 
-        right=revenue_total.revenue, height=20)
-    fig_revenue_total.xaxis.major_label_orientation = math.pi/2
+    revenue_total_source = ColumnDataSource(revenue_total)
+    revenue_total_hover = HoverTool(tooltips=[('Employee', '@name'), ('Revenue', '@revenue{$ 0.00 a}')])
+    revenue_total_fig = figure(sizing_mode='scale_width', height=300, y_range=revenue_total.name,
+        x_range=(revenue_total.revenue.min() - revenue_range/10, revenue_total.revenue.max()), 
+        tools=[revenue_total_hover])
+    revenue_total_fig.hbar(y='name', right='revenue', source=revenue_total_source, height=0.8, 
+        hover_color='red', hover_fill_alpha=0.8)
     # styling visual
-    fig_revenue_total.xaxis.axis_label = 'Revenue'
-    fig_revenue_total.xaxis.axis_label_text_font_size = "12pt"
-    fig_revenue_total.xaxis.axis_label_standoff = 10
-    fig_revenue_total.yaxis.axis_label = 'Employee'
-    fig_revenue_total.yaxis.axis_label_text_font_size = "12pt"
-    fig_revenue_total.yaxis.axis_label_standoff = 10
-    fig_revenue_total.xaxis.major_label_text_font_size = '11pt'
-    fig_revenue_total.yaxis.major_label_text_font_size = '11pt'
-    fig_revenue_total.xaxis[0].formatter = NumeralTickFormatter(format="$ 0.00 a")
+    revenue_total_fig.xaxis.axis_label = 'Revenue'
+    revenue_total_fig.xaxis.axis_label_text_font_size = "12pt"
+    revenue_total_fig.xaxis.axis_label_standoff = 10
+    revenue_total_fig.yaxis.axis_label = 'Employee'
+    revenue_total_fig.yaxis.axis_label_text_font_size = "12pt"
+    revenue_total_fig.yaxis.axis_label_standoff = 10
+    revenue_total_fig.xaxis.major_label_text_font_size = '11pt'
+    revenue_total_fig.yaxis.major_label_text_font_size = '11pt'
+    revenue_total_fig.xaxis[0].formatter = NumeralTickFormatter(format="$ 0.00 a")
 
-    # orders by employees
+    # most orders
     orders_total = get_employee_orders_total(date_start, date_end)
     most_orders_name = orders_total.loc[0, 'name']
-    orders_mean = orders_total.orders.mean()
     orders_range = orders_total.orders.max() - orders_total.orders.min()
-
-    fig_orders_total = figure(sizing_mode='scale_width', height=200,
-        x_range=orders_total.name,
-        y_range=(orders_mean - orders_range / 2 * 1.5,
-            orders_mean + orders_range / 2 * 1.5))
-    fig_orders_total.vbar(x=orders_total.name, 
-        top=orders_total.orders, width=0.9)
-    fig_orders_total.xaxis.major_label_orientation = math.pi/2
+    
+    # orders by employees
+    orders_total_source = ColumnDataSource(orders_total)
+    orders_total_hover = HoverTool(tooltips=[('Employee', '@name'), ('Order number', '@orders{0.00 a}')])
+    orders_total_fig = figure(sizing_mode='scale_width', height=300,
+        y_range=orders_total.name, x_range=(orders_total.orders.min() - orders_range/10, orders_total.orders.max()),
+        tools=[orders_total_hover])
+    orders_total_fig.hbar(y='name', right='orders', source=orders_total_source, height=0.8, 
+        hover_color='red', hover_fill_alpha=0.8)
     # styling visual
-    fig_orders_total.xaxis.axis_label = 'Employee'
-    fig_orders_total.xaxis.axis_label_text_font_size = "12pt"
-    fig_orders_total.xaxis.axis_label_standoff = 10
-    fig_orders_total.yaxis.axis_label = 'Order numbers'
-    fig_orders_total.yaxis.axis_label_text_font_size = "12pt"
-    fig_orders_total.yaxis.axis_label_standoff = 10
-    fig_orders_total.xaxis.major_label_text_font_size = '11pt'
-    fig_orders_total.yaxis.major_label_text_font_size = '11pt'
-    fig_orders_total.yaxis[0].formatter = NumeralTickFormatter(format="0.00 a")
+    orders_total_fig.xaxis.axis_label = 'Employee'
+    orders_total_fig.xaxis.axis_label_text_font_size = "12pt"
+    orders_total_fig.xaxis.axis_label_standoff = 10
+    orders_total_fig.yaxis.axis_label = 'Order numbers'
+    orders_total_fig.yaxis.axis_label_text_font_size = "12pt"
+    orders_total_fig.yaxis.axis_label_standoff = 10
+    orders_total_fig.xaxis.major_label_text_font_size = '11pt'
+    orders_total_fig.yaxis.major_label_text_font_size = '11pt'
+    orders_total_fig.xaxis[0].formatter = NumeralTickFormatter(format="0.00 a")
     
 
     js_resources = INLINE.render_js()
     css_resources = INLINE.render_css()
 
-    js_revenue_total, div_revenue_total = components(fig_revenue_total)
-    js_orders_total, div_orders_total = components(fig_orders_total)
+    js_revenue_total, div_revenue_total = components(revenue_total_fig)
+    js_orders_total, div_orders_total = components(orders_total_fig)
 
     html = render_template(
         'employees.html',
@@ -91,77 +93,48 @@ def employees():
     )
     return html
 
-def get_employee_revenue_orders_total(date_start, date_end):
-    """
-
-    """
-    sql = f"""
-    select employee.name, sum(sales.total), count(*)
-    from sales, employee
-    where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD')
-        and sales.employeeID = employee.employeeID
-    group by employee.name
-    order by sum(sales.total) desc
-    """
-    rows = query(sql)
-    df = pd.DataFrame(rows, columns=['name', 'revenue', 'orders'])
-    print(df.head())
-    return df
-
 
 def get_employee_revenue_total(date_start, date_end):
     """
-
+    return employee name and revenue for top 10
     """
     sql = f"""
-    select employee.name, sum(sales.total)
-    from sales, employee
-    where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD')
-        and sales.employeeID = employee.employeeID
-    group by employee.name
-    order by sum(sales.total) desc
+    select *
+    from(select employee.name, sum(sales.total) as revenue
+         from sales, employee
+         where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD')
+             and sales.employeeID = employee.employeeID
+         group by employee.name
+         order by sum(sales.total) desc)
+    where rownum < 11
+    order by revenue asc
     """
+    # need to make output to be ascending order to further plot be descending order
     rows = query(sql)
     df = pd.DataFrame(rows, columns=['name', 'revenue'])
-    print(df.head())
+    print(df)
     return df
 
 def get_employee_orders_total(date_start, date_end):
     """
+    return employee name and order number for top 10
     """
     sql = f"""
-    select employee.name as name, count(sales.salesID) as order_number
-    from sales, employee
-    where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD')
-        and sales.employeeID = employee.employeeID
-    group by employee.name
-    order by count(sales.salesID) desc"""
+    select *
+    from (select employee.name as name, count(sales.salesID) as order_number
+          from sales, employee
+          where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD')
+              and sales.employeeID = employee.employeeID
+          group by employee.name
+          order by count(sales.salesID) desc)
+    where rownum < 11
+    order by order_number asc
+    """
     rows = query(sql)
     df = pd.DataFrame(rows, columns=['name', 'orders'])
     # print(df.head())
     return df
 
-@app.route('/api/best_employee', methods=['GET'])
-def best_employee():
-    """
-    Return the best seller employee ranked by total revenue within the time range.
-    """
-    date_start = request.args.get('date_start')
-    date_end = request.args.get('date_end')
-    db = get_db()
-    cur = db.cursor()
-    rows = list(cur.execute(
-        f"""
-        select name
-        from (select employee.name as name, sum(sales.total)
-              from sales, employee
-              where salesdate between to_date({date_start}, 'YYYYMMDD') and to_date({date_end}, 'YYYYMMDD')
-                  and sales.employeeID = employee.employeeID
-              
-              )
-        where rownum = 1"""))
-    data = dict(best_employee=rows[0][0])
-    return jsonify(data)
 
 @app.route('/api/avg_selling_per', methods=['GET'])
 def avg_selling_per():
