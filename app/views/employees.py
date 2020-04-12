@@ -4,6 +4,7 @@ from bokeh.plotting import figure
 from bokeh.resources import INLINE
 from bokeh.models import NumeralTickFormatter
 from bokeh.models import ColumnDataSource, HoverTool
+from bokeh.layouts import gridplot
 from flask import render_template, flash, redirect, url_for, request, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
 from datetime import datetime
@@ -43,6 +44,8 @@ def employees():
 
     # most revenue
     revenue_total = get_employee_revenue_total(date_start, date_end)
+    
+    # Revenue by employees
     most_revenue_name = revenue_total.loc[0, 'name']
     revenue_range = revenue_total.revenue.max() - revenue_total.revenue.min()
 
@@ -67,6 +70,7 @@ def employees():
 
     # most orders
     orders_total = get_employee_orders_total(date_start, date_end)
+    orders_source = ColumnDataSource(orders_total)
     most_orders_name = orders_total.loc[0, 'name']
     orders_range = orders_total.orders.max() - orders_total.orders.min()
     
@@ -104,6 +108,8 @@ def employees():
         js_revenue_total=js_revenue_total,
         div_orders_total=div_orders_total,
         js_orders_total=js_orders_total,
+        # js_fig=js_fig,
+        # div_fig=div_fig,
         most_orders_name=most_orders_name,
         most_revenue_name=most_revenue_name,
         avg_order=avg_order,

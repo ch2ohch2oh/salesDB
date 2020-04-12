@@ -41,10 +41,13 @@
         {{ div_orders_total|indent(4)|safe }}
     </div>
 </div>
+
+
 {% endblock %}
 
 {% block more_js %}
 {{ js_resources|safe }}
 {{ js_revenue_total|safe }}
 {{ js_orders_total|safe }}
+{{js_fig|safe}}
 {% endblock %}
