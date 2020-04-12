@@ -2,6 +2,7 @@ from app import app
 from bokeh.embed import components
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
+from bokeh.models import NumeralTickFormatter
 from flask import render_template, flash, redirect, url_for, request, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
 from datetime import datetime
@@ -19,7 +20,7 @@ def employees():
     Render employee page
     """
     date_start = request.form.get('date_start', '2018-01-01')
-    date_end = request.form.get('date_end', '2018-03-12')
+    date_end = request.form.get('date_end', '2018-01-31')
 
     revenue_total = get_employee_revenue_total(date_start, date_end)
 
@@ -27,14 +28,24 @@ def employees():
     revenue_mean = revenue_total.revenue.mean()
     revenue_range = revenue_total.revenue.max() - revenue_total.revenue.min()
 
-    fig_revenue_total = figure(sizing_mode='scale_width', height=200,
-        y_range=revenue_total.name,
-        x_range=(revenue_mean - revenue_range / 2 * 1.5, 
-            revenue_mean + revenue_range / 2 * 1.5))
+    # revenue by employee
+    fig_revenue_total = figure(sizing_mode='scale_width', height=300, y_range=revenue_total.name,
+        x_range=(revenue_range / 2 * 1.5, revenue_mean + revenue_range / 2 * 1.5))
     fig_revenue_total.hbar(y=revenue_total.name, 
-        right=revenue_total.revenue, height=0.5)
+        right=revenue_total.revenue, height=20)
     fig_revenue_total.xaxis.major_label_orientation = math.pi/2
+    # styling visual
+    fig_revenue_total.xaxis.axis_label = 'Revenue'
+    fig_revenue_total.xaxis.axis_label_text_font_size = "12pt"
+    fig_revenue_total.xaxis.axis_label_standoff = 10
+    fig_revenue_total.yaxis.axis_label = 'Employee'
+    fig_revenue_total.yaxis.axis_label_text_font_size = "12pt"
+    fig_revenue_total.yaxis.axis_label_standoff = 10
+    fig_revenue_total.xaxis.major_label_text_font_size = '11pt'
+    fig_revenue_total.yaxis.major_label_text_font_size = '11pt'
+    fig_revenue_total.xaxis[0].formatter = NumeralTickFormatter(format="$ 0.00 a")
 
+    # orders by employees
     orders_total = get_employee_orders_total(date_start, date_end)
     most_orders_name = orders_total.loc[0, 'name']
     orders_mean = orders_total.orders.mean()
@@ -47,6 +58,17 @@ def employees():
     fig_orders_total.vbar(x=orders_total.name, 
         top=orders_total.orders, width=0.9)
     fig_orders_total.xaxis.major_label_orientation = math.pi/2
+    # styling visual
+    fig_orders_total.xaxis.axis_label = 'Employee'
+    fig_orders_total.xaxis.axis_label_text_font_size = "12pt"
+    fig_orders_total.xaxis.axis_label_standoff = 10
+    fig_orders_total.yaxis.axis_label = 'Order numbers'
+    fig_orders_total.yaxis.axis_label_text_font_size = "12pt"
+    fig_orders_total.yaxis.axis_label_standoff = 10
+    fig_orders_total.xaxis.major_label_text_font_size = '11pt'
+    fig_orders_total.yaxis.major_label_text_font_size = '11pt'
+    fig_orders_total.yaxis[0].formatter = NumeralTickFormatter(format="0.00 a")
+    
 
     js_resources = INLINE.render_js()
     css_resources = INLINE.render_css()
