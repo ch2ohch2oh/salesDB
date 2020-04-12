@@ -7,15 +7,14 @@
 {% block content %}
 <div class="row mt-5">
     <div class="col text-center">
-        <h5>Most revenue</h5>
+        <h5>Most revenue employee</h5>
         <h3>{{most_revenue_name}}</h3>
     </div>
     <div class="col text-center">
-        <h5>Most orders</h5>
-        <h3>{{most_orders_name}}</h3>
+        <h5>Average revenue</h5>
+        <h3>{{avg_revenue}}</h3>
     </div>
 </div>
-
 
 <div class="row mt-5">
     <div class="col">
@@ -24,6 +23,18 @@
     </div>
 
 </div>
+
+<div class="row mt-5">
+    <div class="col text-center">
+        <h5>Most orders employee</h5>
+        <h3>{{most_orders_name}}</h3>
+    </div>
+    <div class="col text-center">
+        <h5>Average order number</h5>
+        <h3>{{avg_order}}</h3>
+    </div>
+</div>
+
 <div class="row mt-5">
     <div class="col">
         <h5>Top 10 employee by order number</h5>

@@ -23,6 +23,24 @@ def employees():
     date_start = request.form.get('date_start', '2018-01-01')
     date_end = request.form.get('date_end', '2018-01-31')
     
+    # average order_numbers
+    avg = get_avg_selling_per(date_start, date_end)
+    avg_order = avg[0][0]
+    if 10**3 < avg_order < 10**6:
+        avg_order = str(round(avg_order / 10**3, 3)) + ' Thousand'
+    elif 10**6 < avg_order < 10**9:
+        avg_order = str(round(avg_order / 10**6, 3)) + ' Million'
+    elif avg_order > 10**9:
+        avg_order = str(round(avg_order / 10**9, 3)) + ' Billion'
+
+    avg_revenue = avg[1][0]
+    if 10**6 < avg_revenue < 10**9:
+        avg_revenue = '$ ' + str(round(avg_revenue / 10**6, 3)) + ' Million'
+    elif 10**9 < avg_revenue < 10**12:
+        avg_revenue = '$ ' + str(round(avg_revenue / 10**9, 3)) + ' Billion'
+    elif avg_revenue >= 10**12:
+        avg_revenue = '$ ' + str(round(avg_revenue / 10**12, 3)) + ' Trillion'
+
     # most revenue
     revenue_total = get_employee_revenue_total(date_start, date_end)
     most_revenue_name = revenue_total.loc[0, 'name']
@@ -88,6 +106,8 @@ def employees():
         js_orders_total=js_orders_total,
         most_orders_name=most_orders_name,
         most_revenue_name=most_revenue_name,
+        avg_order=avg_order,
+        avg_revenue=avg_revenue,
         date_start=date_start,
         date_end=date_end,
     )
@@ -136,48 +156,22 @@ def get_employee_orders_total(date_start, date_end):
     return df
 
 
-@app.route('/api/avg_selling_per', methods=['GET'])
-def avg_selling_per():
+def get_avg_selling_per(date_start, date_end):
     """
     Return the average order numbers of each employee within the time range.
     """
-    date_start = request.args.get('date_start')
-    date_end = request.args.get('date_end')
-    db = get_db()
-    cur = db.cursor()
-    rows = list(cur.execute(
-        f"""
-        select sum(order_num) / count(name)
-        from (select count(sales.salesID) as order_num, employee.name as name
-              from sales, employee
-              where salesdate between to_date({date_start}, 'YYYYMMDD') and to_date({date_end}, 'YYYYMMDD')
-                  and sales.employeeID = employee.employeeID
-              group by employee.name
-              order by count(sales.salesID) desc)"""))
-    data = dict(avg_selling_per=rows[0][0])
-    return jsonify(data)
+    sql = f"""
+    select sum(order_num) / count(name), sum(revenue) / count(name)
+    from (select count(sales.salesID) as order_num, sum(sales.total) as revenue, employee.name as name
+          from sales, employee
+          where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD')
+              and sales.employeeID = employee.employeeID
+          group by employee.name)
+    """
+    rows = query(sql)
+    df = pd.DataFrame(rows)
+    return df
 
-@app.route('/api/num_order_by_employee', methods=['GET'])
-def num_order_by_employee():
-    """
-    Return the order numbers and revenue of each employee within the time range.
-    """
-    date_start = request.args.get('date_start')
-    date_end = request.args.get('date_end')
-    db = get_db()
-    cur = db.cursor()
-    rows = list(cur.execute(
-        f"""
-        select employee.name as name, count(sales.salesID) as order_number, sum(sales.total) as revenue
-        from sales, employee
-        where salesdate between to_date({date_start}, 'YYYYMMDD') and to_date({date_end}, 'YYYYMMDD')
-            and sales.employeeID = employee.employeeID
-        group by employee.name
-        order by count(sales.salesID) desc"""))
-    data = []
-    for row in rows:
-        data.append({'employee': row[0], 'order numbers': row[1], 'revenue': row[2]})
-    return jsonify(data)
 
 # optional and under construction
 @app.route('/api/top5_employee_monthly', methods=['GET'])
