@@ -52,7 +52,7 @@ def employees():
     revenue_total = get_employee_revenue_total(date_start, date_end)
     
     # Revenue by employees
-    most_revenue_name = revenue_total.loc[0, 'name']
+    most_revenue_name = revenue_total.loc[9, 'name']
     revenue_range = revenue_total.revenue.max() - revenue_total.revenue.min()
 
     # revenue by employee
@@ -78,7 +78,7 @@ def employees():
     # most orders
     orders_total = get_employee_orders_total(date_start, date_end)
     orders_source = ColumnDataSource(orders_total)
-    most_orders_name = orders_total.loc[0, 'name']
+    most_orders_name = orders_total.loc[9, 'name']
     orders_range = orders_total.orders.max() - orders_total.orders.min()
     
     # orders by employees

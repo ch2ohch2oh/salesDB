@@ -151,7 +151,7 @@ def get_customer_by_geo(date_start, date_end):
 
 def get_repeat_order_by_time(date_start, date_end):
     """
-    Return the number of repeated purchases (same prodcut > 3 times)
+    Return the number of repeated purchases (same prodcut > 2 times)
     and the total number of orders for different category with the time range.
     """
     sql = f"""
@@ -171,7 +171,7 @@ def get_repeat_order_by_time(date_start, date_end):
          (select count(salesID) as number_repeat, category as cat2
           from orders
           group by customer_id, category
-          having count(salesID) > 3
+          having count(salesID) > 2
          )
         on cat1 = cat2
     group by cat1
