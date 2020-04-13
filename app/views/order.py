@@ -32,7 +32,7 @@ def order():
     order_num_source = ColumnDataSource(order_num_data)
     order_num_hover = HoverTool(tooltips=[('Category', '@category'), ('Order number', '@order_number{0.00 a}')])
     order_num_fig = figure(x_range = order_num_data.category, sizing_mode='scale_width', height=250, 
-        tools=[order_num_hover],)
+        tools=[order_num_hover], toolbar_location=None,)
     order_num_fig.vbar(x='category', top='order_number', source=order_num_source, width=0.9, 
         hover_color='red', hover_fill_alpha=0.8)
     # styling visual
@@ -52,8 +52,8 @@ def order():
     price_source = ColumnDataSource(price_data)
     # price_hover = HoverTool(tooltips=[('Category', '@category'), ('Max price', '@max_price{$ 0.00 a}'), 
    #     ('Average price', '@avg_price{$ 0.00 a}'), ('Min price', '@min_price{$ 0.00 a}')])
-    price_fig = figure(x_range = price_data.category, sizing_mode='scale_width', height=250)
-    plot1 = price_fig.line(x='category', y='max_price', line_color="#1D91C0", line_width=5, source=price_source)
+    price_fig = figure(x_range = price_data.category, sizing_mode='scale_width', height=250, toolbar_location=None,)
+    plot1 = price_fig.line(x='category', y='max_price', line_color="#1D91C0", line_width=5, source=price_source,)
     price_fig.add_tools(HoverTool(renderers=[plot1], tooltips=[('Category', '@category'), ('Max price', '@max_price{$ 0.00 a}')],
         mode='vline'))
     plot2 = price_fig.line(x='category', y='avg_price', line_color="#FB8072", line_width=5, source=price_source)
