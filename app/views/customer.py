@@ -30,7 +30,7 @@ def customer():
     customer_geo_source = ColumnDataSource(customer_geo_data)
     customer_geo_hover = HoverTool(tooltips=[('Number', '@number{0.00 a}'), ('City name', '@city_name')])
     customer_geo_fig = figure(x_range = customer_geo_data.city_name, sizing_mode='scale_width', height=200, 
-        tools=[customer_geo_hover])
+        tools=[customer_geo_hover], toolbar_location=None,)
     customer_geo_fig.vbar(x='city_name', top='number', source=customer_geo_source, width=0.9, 
         hover_color='red', hover_fill_alpha=0.8)
     # styling visual
@@ -52,7 +52,7 @@ def customer():
     repeat_source = ColumnDataSource(repeat_data)
     names = ['repeated', 'unrepeated']
     repeat_fig = figure(x_range = repeat_data.category, sizing_mode='scale_width', height=200, 
-        tools='hover', tooltips='$name: @$name{0.00 a}' )
+        tools='hover', tooltips='$name: @$name{0.00 a}', toolbar_location=None,)
     repeat_fig.vbar_stack(names, x='category', width=0.9, alpha=0.8, color=[ "#3cba54", "#f4c20b"], legend_label=names, 
         source=repeat_source,)
     # styling visual
@@ -71,7 +71,7 @@ def customer():
     gender_data = get_num_order_by_gender_cat(date_start, date_end)
     gender_source = ColumnDataSource(gender_data)
     gender_fig = figure(x_range = gender_data.category, sizing_mode='scale_width', height=200, 
-        tools='hover', tooltips='$name: @$name{$ 0.00 a}' )
+        tools='hover', tooltips='$name: @$name{$ 0.00 a}', toolbar_location=None,)
     gender = ['female', 'male']
     gender_fig.vbar_stack(gender, x='category', width=0.9, alpha=0.6, color=["#da3337", "#4986ec"], legend_label=gender, 
         source=gender_source)
@@ -91,7 +91,7 @@ def customer():
     geo_data = get_num_order_by_geo(date_start, date_end)
     geo_source = ColumnDataSource(geo_data)
     geo_fig = figure(x_range = geo_data.category, sizing_mode='scale_width', height=200, tools='hover', 
-        tooltips='$name: @$name{$ 0.00 a}' )
+        tooltips='$name: @$name{$ 0.00 a}', toolbar_location=None, )
     region = ['northeast', 'east', 'southeast', 'north', 'south', 'west', 'southwest', 
         'northwest', 'middle']
     geo_fig.vbar_stack(region, x='category', width=0.9, color=brewer['Spectral'][9], legend_label=region,
