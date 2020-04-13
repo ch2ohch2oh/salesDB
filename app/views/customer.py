@@ -13,6 +13,7 @@ from app.db import get_db, query
 
 import numpy as np
 import pandas as pd
+import math
 
 
 @app.route('/customer', methods=['GET', 'POST'])
@@ -33,8 +34,9 @@ def customer():
     customer_geo_fig.vbar(x='city_name', top='number', source=customer_geo_source, width=0.9, 
         hover_color='red', hover_fill_alpha=0.8)
     # styling visual
-    customer_geo_fig.xaxis.axis_label = 'Category'
-    customer_geo_fig.xaxis.axis_label_text_font_size = "12pt"
+    customer_geo_fig.xaxis.major_label_orientation = math.pi / 2
+    customer_geo_fig.xaxis.axis_label = 'City'
+    customer_geo_fig.xaxis.axis_label_text_font_size = "10pt"
     customer_geo_fig.xaxis.axis_label_standoff = 10
     customer_geo_fig.yaxis.axis_label = 'Order numbers'
     customer_geo_fig.yaxis.axis_label_text_font_size = "12pt"
