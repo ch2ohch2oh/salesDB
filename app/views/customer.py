@@ -24,6 +24,8 @@ def customer():
     '''
     date_start = request.form.get('date_start', '2018-01-01')
     date_end = request.form.get('date_end', '2018-01-31')
+    time_frame = request.form.get('time_frame')
+    # print(time_frame)
 
     # Customer geo distribution
     customer_geo_data = get_customer_by_geo(date_start, date_end)
@@ -145,7 +147,6 @@ def get_customer_by_geo(date_start, date_end):
     df = pd.DataFrame(columns=['number', 'city_name'])
     for row in rows:
         df.loc[len(df), :] = row
-    print(df)
     return df
 
 
@@ -183,7 +184,6 @@ def get_repeat_order_by_time(date_start, date_end):
     for row in rows:
         df.loc[len(df), :] = row
     df['unrepeated'] = df['total'] - df['repeated']
-    print(df)
     return df
 
 # 需要给 customer table 添加随机性别，可以使用 excel 完成

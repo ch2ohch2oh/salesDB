@@ -52,6 +52,14 @@
         <input name="date_start" id="date_start" type="date" class="form-control mx-sm-3 my-2" value="20180101">
         <label>To</label>
         <input name="date_end" id="date_end" type="date" class="form-control mx-sm-3 my-2" value="20181212">
+        <select name="time_frame" class="form-control" id="time_frame">
+            <option selected>Choose...</option>          
+            <option value='Daily'>Daily</option>
+            <option value='Weekly'>Weekly</option>
+            <option value='Biweekly'>Biweekly</option>
+            <option value='Monthly'>Monthly</option>
+            <option value='Quarterly'>Quarterly</option>
+        </select>
         <button type="submit" class="btn btn-primary my-2">GO!</button>
       </div>
     </form>
@@ -77,6 +85,7 @@
   <script type="text/javascript">
     $('#date_start').val('{{date_start}}');
     $('#date_end').val('{{date_end}}');
+    //$('#time_frame').val('{{time_frame}}')
     console.log('Setting date range...');
   </script>
   {% endif %}

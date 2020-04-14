@@ -22,6 +22,8 @@ def order():
     '''
     date_start = request.form.get('date_start', '2018-01-01')
     date_end = request.form.get('date_end', '2018-01-31')
+    time_frame = request.form.get('time_frame')
+    # print(time_frame)
 
     # render template
     best_product = get_best_product(date_start, date_end)

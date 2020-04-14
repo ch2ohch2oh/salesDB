@@ -29,18 +29,18 @@ def query(sql, limit=None):
     """
     A wrapper for SQL query with logging.
     """
-    logger = current_app.logger
-    logger.info(f"Query: {sql}")
+    # logger = current_app.logger
+    # logger.info(f"Query: {sql}")
     db = get_db()
     cur = db.cursor()
     time_start = time.time()
     cur.execute(sql)
     rows = cur.fetchall()
     time_end = time.time()
-    logger.info(f'{len(rows)} row(s) fetched in {time_end - time_start:.5f} seconds')
+    # logger.info(f'{len(rows)} row(s) fetched in {time_end - time_start:.5f} seconds')
     # Show the first 5 rows for debugging
-    for i in range(min(len(rows), 5)):
-        logger.debug(f'{rows[i]}')
+    # for i in range(min(len(rows), 5)):
+    #    logger.debug(f'{rows[i]}')
     return rows
 
 @app.teardown_appcontext

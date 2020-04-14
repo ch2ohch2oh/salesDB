@@ -29,6 +29,8 @@ def employees():
     """
     date_start = request.form.get('date_start', '2018-01-01')
     date_end = request.form.get('date_end', '2018-01-31')
+    time_frame = request.form.get('time_frame')
+    # print(time_frame)
     
     # average order_numbers
     avg = get_avg_selling_per(date_start, date_end)
@@ -179,7 +181,6 @@ def get_employee_revenue_total(date_start, date_end):
     # need to make output to be ascending order to further plot be descending order
     rows = query(sql)
     df = pd.DataFrame(rows, columns=['name', 'revenue'])
-    print(df)
     return df
 
 def get_employee_orders_total(date_start, date_end):
