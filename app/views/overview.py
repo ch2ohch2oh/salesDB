@@ -14,15 +14,15 @@ import numpy as np
 import pandas as pd
 
 @app.route('/overview', methods=['GET', 'POST'])
-@login_required
 def overview():
     """Render overview page
     
     TODO: improve tooltips style
     """
-    
     date_start = request.form.get('date_start', '2018-01-01')
     date_end = request.form.get('date_end', '2018-01-31')
+    time_frame = request.form.get('time_frame')
+    # print(time_frame)
 
     # total revenue
     total_sales = get_total_revenue(date_start, date_end)

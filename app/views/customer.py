@@ -24,6 +24,8 @@ def customer():
     '''
     date_start = request.form.get('date_start', '2018-01-01')
     date_end = request.form.get('date_end', '2018-01-31')
+    time_frame = request.form.get('time_frame')
+    # print(time_frame)
 
     # Customer geo distribution
     customer_geo_data = get_customer_by_geo(date_start, date_end)
@@ -145,13 +147,12 @@ def get_customer_by_geo(date_start, date_end):
     df = pd.DataFrame(columns=['number', 'city_name'])
     for row in rows:
         df.loc[len(df), :] = row
-    print(df)
     return df
 
 
 def get_repeat_order_by_time(date_start, date_end):
     """
-    Return the number of repeated purchases (same prodcut > 3 times)
+    Return the number of repeated purchases (same prodcut > 2 times)
     and the total number of orders for different category with the time range.
     """
     sql = f"""
@@ -171,7 +172,7 @@ def get_repeat_order_by_time(date_start, date_end):
          (select count(salesID) as number_repeat, category as cat2
           from orders
           group by customer_id, category
-          having count(salesID) > 3
+          having count(salesID) > 2
          )
         on cat1 = cat2
     group by cat1
@@ -183,7 +184,6 @@ def get_repeat_order_by_time(date_start, date_end):
     for row in rows:
         df.loc[len(df), :] = row
     df['unrepeated'] = df['total'] - df['repeated']
-    print(df)
     return df
 
 # 需要给 customer table 添加随机性别，可以使用 excel 完成
