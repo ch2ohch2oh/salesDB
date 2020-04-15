@@ -28,8 +28,8 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('overview') }}">Overview<span class="sr-only">(current)</span></a>
+        <li class="nav-item active">
+          <a class="nav-link" href="{{ url_for('overview') }}">Overview</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('order') }}">Order</a>
@@ -52,7 +52,7 @@
         <input name="date_start" id="date_start" type="date" class="form-control mx-sm-3 my-2" value="20180101">
         <label>To</label>
         <input name="date_end" id="date_end" type="date" class="form-control mx-sm-3 my-2" value="20181212">
-        <select name="time_frame" class="form-control" id="time_frame">
+        <select name="time_frame" class="form-control mx-sm-3 my-2" id="time_frame">
             <option selected>Choose...</option>          
             <option value='Daily'>Daily</option>
             <option value='Weekly'>Weekly</option>
@@ -83,10 +83,50 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   {% if date_start and date_end %}
   <script type="text/javascript">
+    console.log("Start of my poorly written js!");
+
     $('#date_start').val('{{date_start}}');
     $('#date_end').val('{{date_end}}');
     //$('#time_frame').val('{{time_frame}}')
-    console.log('Setting date range...');
+
+    // Hide time frame drop list for pages other than overview
+    $(window).on("load", function() {
+      var pagename = window.location.pathname.split("/").pop();
+      if(pagename.toLocaleLowerCase() != "overview") {
+        $("#time_frame").css("display", "none");
+      }
+    });
+
+    // Save user selected time frame (weekly, biweekkly, monthly etc.)
+    $(window).on("load", function() {
+      $("#time_frame").on("change", function() {
+        var value = $(this).val();
+        localStorage.setItem("time_frame", value);
+        console.log("User selected time frame = " + value);
+      })
+    });
+
+    // Load saved time frame 
+    $(window).on("load", function() {
+      var saved_value = localStorage.getItem("time_frame");
+      if(saved_value != null) {
+        $("#time_frame").val(saved_value);
+      }
+    });
+    console.log("End of my poorly written js!");
+
+    // Select the corresponding tab on nav bar
+    $(window).on("load", function() {
+      var pagename = window.location.pathname.split("/").pop();
+      console.log("Current pagename = " + pagename);
+      $("#navbarSupportedContent ul li.nav-item").each(function() {
+        if($(this).find("a").text().toLowerCase() == pagename.toLowerCase()) {
+          $(this).addClass("active");
+        } else {
+          $(this).removeClass("active");
+        }
+      });
+    });
   </script>
   {% endif %}
 
