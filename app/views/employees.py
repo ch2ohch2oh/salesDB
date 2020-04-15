@@ -16,6 +16,7 @@ from datetime import datetime
 from math import pi
 
 from app.db import get_db, query
+from app.plot import formatter
 
 import pandas as pd
 import numpy as np
@@ -34,21 +35,8 @@ def employees():
     
     # average order_numbers
     avg = get_avg_selling_per(date_start, date_end)
-    avg_order = avg[0][0]
-    if 10**3 < avg_order < 10**6:
-        avg_order = str(round(avg_order / 10**3, 3)) + ' Thousand'
-    elif 10**6 < avg_order < 10**9:
-        avg_order = str(round(avg_order / 10**6, 3)) + ' Million'
-    elif avg_order > 10**9:
-        avg_order = str(round(avg_order / 10**9, 3)) + ' Billion'
-
-    avg_revenue = avg[1][0]
-    if 10**6 < avg_revenue < 10**9:
-        avg_revenue = '$ ' + str(round(avg_revenue / 10**6, 3)) + ' Million'
-    elif 10**9 < avg_revenue < 10**12:
-        avg_revenue = '$ ' + str(round(avg_revenue / 10**9, 3)) + ' Billion'
-    elif avg_revenue >= 10**12:
-        avg_revenue = '$ ' + str(round(avg_revenue / 10**12, 3)) + ' Trillion'
+    avg_order = formatter(avg[0][0])
+    avg_revenue = formatter(avg[1][0], 'dollar')
 
     # most revenue
     revenue_total = get_employee_revenue_total(date_start, date_end)

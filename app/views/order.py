@@ -9,6 +9,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from datetime import datetime
 
 from app.db import get_db, query
+from app.plot import formatter
 
 import numpy as np
 import pandas as pd
@@ -27,7 +28,7 @@ def order():
 
     # render template
     best_product = get_best_product(date_start, date_end)
-    avg_price = '$ ' + str(round(get_avg_price(date_start, date_end) / 1000000, 3)) + ' Million'
+    avg_price = formatter(get_avg_price(date_start, date_end), 'dollar')
 
     # Order number by categories
     order_num_data = get_num_order_by_cat(date_start, date_end)

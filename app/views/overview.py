@@ -9,6 +9,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from datetime import datetime
 
 from app.db import get_db, query
+from app.plot import formatter, vbar
 
 import numpy as np
 import pandas as pd
@@ -22,25 +23,12 @@ def overview():
     date_start = request.form.get('date_start', '2018-01-01')
     date_end = request.form.get('date_end', '2018-01-31')
     time_frame = request.form.get('time_frame')
-    # print(time_frame)
 
     # total revenue
-    total_sales = get_total_revenue(date_start, date_end)
-    if 10**6 < total_sales < 10**9:
-        total_sales = '$ ' + str(round(total_sales / 10**6, 3)) + ' Million'
-    elif 10**9 < total_sales < 10**12:
-        total_sales = '$ ' + str(round(total_sales / 10**9, 3)) + ' Billion'
-    elif total_sales >= 10**12:
-        total_sales = '$ ' + str(round(total_sales / 10**12, 3)) + ' Trillion'
-    
+    total_sales = formatter(get_total_revenue(date_start, date_end), 'dollar')
+
     # total order numbers
-    total_orders = get_total_orders(date_start, date_end)
-    if 10**3 < total_orders < 10**6:
-        total_orders = str(round(total_orders / 10**3, 3)) + ' Thousand'
-    elif 10**6 < total_orders < 10**9:
-        total_orders = str(round(total_orders / 10**6, 3)) + ' Million'
-    elif total_orders > 10**9:
-        total_orders = str(round(total_orders / 10**9, 3)) + ' Billion'
+    total_orders = formatter(get_total_orders(date_start, date_end))
 
     # Revenue over time
     rev_source = ColumnDataSource(get_revenue_by_time(date_start, date_end))
@@ -63,6 +51,10 @@ def overview():
     
     # Revenue by categoreis
     cat_data = get_revenue_by_category(date_start, date_end)
+    cat_js, cat_div = vbar(cat_data, 'category', 'revenue', 'dollar')
+    '''
+    cat_fig = vbar(cat_data, 'category', 'revenue', 'dollar')
+    
     cat_source = ColumnDataSource(cat_data)
     cat_hover = HoverTool(tooltips=[('Category', '@category'), ('Revenue', '@revenue{$ 0.00 a}')])
     cat_fig = figure(x_range = cat_data.category, sizing_mode='scale_width', height=300, tools=[cat_hover], 
@@ -79,7 +71,7 @@ def overview():
     cat_fig.yaxis.major_label_text_font_size = '11pt'
     cat_fig.yaxis[0].formatter = NumeralTickFormatter(format="$ 0.00 a")
     cat_js, cat_div = components(cat_fig)
- 
+    '''
     # grab the static resources
     js_resources = INLINE.render_js()
     css_resources = INLINE.render_css()
