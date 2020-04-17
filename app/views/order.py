@@ -9,7 +9,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from datetime import datetime
 
 from app.db import get_db, query
-from app.plot import formatter
+from app.plot import formatter, vbar
 
 import numpy as np
 import pandas as pd
@@ -32,24 +32,8 @@ def order():
 
     # Order number by categories
     order_num_data = get_num_order_by_cat(date_start, date_end)
-    order_num_source = ColumnDataSource(order_num_data)
-    order_num_hover = HoverTool(tooltips=[('Category', '@category'), ('Order number', '@order_number{0.00 a}')])
-    order_num_fig = figure(x_range = order_num_data.category, sizing_mode='scale_width', height=250, 
-        tools=[order_num_hover], toolbar_location=None,)
-    order_num_fig.vbar(x='category', top='order_number', source=order_num_source, width=0.9, 
-        hover_color='red', hover_fill_alpha=0.8)
-    # styling visual
-    order_num_fig.xaxis.axis_label = 'Category'
-    order_num_fig.xaxis.axis_label_text_font_size = "12pt"
-    order_num_fig.xaxis.axis_label_standoff = 10
-    order_num_fig.yaxis.axis_label = 'Order numbers'
-    order_num_fig.yaxis.axis_label_text_font_size = "12pt"
-    order_num_fig.yaxis.axis_label_standoff = 10
-    order_num_fig.xaxis.major_label_text_font_size = '11pt'
-    order_num_fig.yaxis.major_label_text_font_size = '11pt'
-    order_num_fig.yaxis[0].formatter = NumeralTickFormatter(format="$ 0.00 a")
-    order_num_js, order_num_div = components(order_num_fig)
-    
+    order_num_js, order_num_div = vbar(order_num_data, 'category', 'order_number')
+
     # Max, avg, min price for top 6 categories
     price_data = get_max_avg_min_price_by_cat(date_start, date_end)
     price_source = ColumnDataSource(price_data)

@@ -48,30 +48,12 @@ def overview():
     rev_fig.yaxis.major_label_text_font_size = '11pt'
     rev_fig.yaxis[0].formatter = NumeralTickFormatter(format="$ 0.00 a")
     trend_script, trend_div = components(rev_fig)
+    print(trend_script)
     
     # Revenue by categoreis
     cat_data = get_revenue_by_category(date_start, date_end)
     cat_js, cat_div = vbar(cat_data, 'category', 'revenue', 'dollar')
-    '''
-    cat_fig = vbar(cat_data, 'category', 'revenue', 'dollar')
-    
-    cat_source = ColumnDataSource(cat_data)
-    cat_hover = HoverTool(tooltips=[('Category', '@category'), ('Revenue', '@revenue{$ 0.00 a}')])
-    cat_fig = figure(x_range = cat_data.category, sizing_mode='scale_width', height=300, tools=[cat_hover], 
-        toolbar_location=None,)
-    # styling visual
-    cat_fig.vbar(x='category', top='revenue', source=cat_source, width=0.9, hover_color='red', hover_fill_alpha=0.8)
-    cat_fig.xaxis.axis_label = 'Category'
-    cat_fig.xaxis.axis_label_text_font_size = "12pt"
-    cat_fig.xaxis.axis_label_standoff = 10
-    cat_fig.yaxis.axis_label = 'Revenue'
-    cat_fig.yaxis.axis_label_text_font_size = "12pt"
-    cat_fig.yaxis.axis_label_standoff = 10
-    cat_fig.xaxis.major_label_text_font_size = '10pt'
-    cat_fig.yaxis.major_label_text_font_size = '11pt'
-    cat_fig.yaxis[0].formatter = NumeralTickFormatter(format="$ 0.00 a")
-    cat_js, cat_div = components(cat_fig)
-    '''
+
     # grab the static resources
     js_resources = INLINE.render_js()
     css_resources = INLINE.render_css()
