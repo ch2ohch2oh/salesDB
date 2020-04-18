@@ -16,6 +16,7 @@ from datetime import datetime
 from math import pi
 
 from app.db import get_db, query
+from app.plot import formatter, hbar
 
 import pandas as pd
 import numpy as np
@@ -34,74 +35,20 @@ def employees():
     
     # average order_numbers
     avg = get_avg_selling_per(date_start, date_end)
-    avg_order = avg[0][0]
-    if 10**3 < avg_order < 10**6:
-        avg_order = str(round(avg_order / 10**3, 3)) + ' Thousand'
-    elif 10**6 < avg_order < 10**9:
-        avg_order = str(round(avg_order / 10**6, 3)) + ' Million'
-    elif avg_order > 10**9:
-        avg_order = str(round(avg_order / 10**9, 3)) + ' Billion'
-
-    avg_revenue = avg[1][0]
-    if 10**6 < avg_revenue < 10**9:
-        avg_revenue = '$ ' + str(round(avg_revenue / 10**6, 3)) + ' Million'
-    elif 10**9 < avg_revenue < 10**12:
-        avg_revenue = '$ ' + str(round(avg_revenue / 10**9, 3)) + ' Billion'
-    elif avg_revenue >= 10**12:
-        avg_revenue = '$ ' + str(round(avg_revenue / 10**12, 3)) + ' Trillion'
+    avg_order = formatter(avg[0][0])
+    avg_revenue = formatter(avg[1][0], 'dollar')
 
     # most revenue
     revenue_total = get_employee_revenue_total(date_start, date_end)
-    
-    # Revenue by employees
-    most_revenue_name = revenue_total.loc[9, 'name']
-    revenue_range = revenue_total.revenue.max() - revenue_total.revenue.min()
-
-    # revenue by employee
-    revenue_total_source = ColumnDataSource(revenue_total)
-    revenue_total_hover = HoverTool(tooltips=[('Employee', '@name'), ('Revenue', '@revenue{$ 0.00 a}')])
-    revenue_total_fig = figure(sizing_mode='scale_width', height=300, y_range=revenue_total.name,
-        x_range=(revenue_total.revenue.min() - revenue_range/10, revenue_total.revenue.max()), 
-        tools=[revenue_total_hover], toolbar_location=None,)
-    revenue_total_fig.hbar(y='name', right='revenue', source=revenue_total_source, height=0.8, 
-        hover_color='red', hover_fill_alpha=0.8)
-    # styling visual
-    revenue_total_fig.xaxis.axis_label = 'Revenue'
-    revenue_total_fig.xaxis.axis_label_text_font_size = "12pt"
-    revenue_total_fig.xaxis.axis_label_standoff = 10
-    revenue_total_fig.yaxis.axis_label = 'Employee'
-    revenue_total_fig.yaxis.axis_label_text_font_size = "12pt"
-    revenue_total_fig.yaxis.axis_label_standoff = 10
-    revenue_total_fig.xaxis.major_label_text_font_size = '11pt'
-    revenue_total_fig.yaxis.major_label_text_font_size = '11pt'
-    revenue_total_fig.xaxis[0].formatter = NumeralTickFormatter(format="$ 0.00 a")
-    js_revenue_total, div_revenue_total = components(revenue_total_fig)
+    most_revenue_name = revenue_total.loc[9, 'employee']
+    # Revenue by employee
+    js_revenue_total, div_revenue_total = hbar(revenue_total, 'revenue', 'employee')
 
     # most orders
     orders_total = get_employee_orders_total(date_start, date_end)
-    orders_source = ColumnDataSource(orders_total)
-    most_orders_name = orders_total.loc[9, 'name']
-    orders_range = orders_total.orders.max() - orders_total.orders.min()
-    
-    # orders by employees
-    orders_total_source = ColumnDataSource(orders_total)
-    orders_total_hover = HoverTool(tooltips=[('Employee', '@name'), ('Order number', '@orders{0.00 a}')])
-    orders_total_fig = figure(sizing_mode='scale_width', height=300,
-        y_range=orders_total.name, x_range=(orders_total.orders.min() - orders_range/10, orders_total.orders.max()),
-        tools=[orders_total_hover], toolbar_location=None,)
-    orders_total_fig.hbar(y='name', right='orders', source=orders_total_source, height=0.8, 
-        hover_color='red', hover_fill_alpha=0.8)
-    # styling visual
-    orders_total_fig.xaxis.axis_label = 'Employee'
-    orders_total_fig.xaxis.axis_label_text_font_size = "12pt"
-    orders_total_fig.xaxis.axis_label_standoff = 10
-    orders_total_fig.yaxis.axis_label = 'Order numbers'
-    orders_total_fig.yaxis.axis_label_text_font_size = "12pt"
-    orders_total_fig.yaxis.axis_label_standoff = 10
-    orders_total_fig.xaxis.major_label_text_font_size = '11pt'
-    orders_total_fig.yaxis.major_label_text_font_size = '11pt'
-    orders_total_fig.xaxis[0].formatter = NumeralTickFormatter(format="0.00 a")
-    js_orders_total, div_orders_total = components(orders_total_fig)
+    most_orders_name = orders_total.loc[9, 'employee']
+    # Order numbers by employee
+    js_orders_total, div_orders_total = hbar(orders_total, 'order_number', 'employee')
     
     # gender relation distribution in order
     g = get_ec_gender(date_start, date_end)
@@ -180,7 +127,7 @@ def get_employee_revenue_total(date_start, date_end):
     """
     # need to make output to be ascending order to further plot be descending order
     rows = query(sql)
-    df = pd.DataFrame(rows, columns=['name', 'revenue'])
+    df = pd.DataFrame(rows, columns=['employee', 'revenue'])
     return df
 
 def get_employee_orders_total(date_start, date_end):
@@ -199,7 +146,7 @@ def get_employee_orders_total(date_start, date_end):
     order by order_number asc
     """
     rows = query(sql)
-    df = pd.DataFrame(rows, columns=['name', 'orders'])
+    df = pd.DataFrame(rows, columns=['employee', 'order_number'])
     # print(df.head())
     return df
 
