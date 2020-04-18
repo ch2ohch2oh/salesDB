@@ -89,12 +89,14 @@
     //$('#time_frame').val('{{time_frame}}')
 
     // Hide time frame drop list for pages other than overview
-    $(window).on("load", function() {
+    /*
+      $(window).on("load", function() {
       var pagename = window.location.pathname.split("/").pop();
       if(pagename.toLocaleLowerCase() != "overview") {
         $("#time_frame").css("display", "none");
       }
     });
+    */
 
     // Save user selected time frame (weekly, biweekkly, monthly etc.)
     $(window).on("load", function() {
