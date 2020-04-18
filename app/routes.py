@@ -5,7 +5,7 @@ from datetime import datetime
 from app import app
 from app.forms import LoginForm
 # import views
-from flask import jsonify
+
 from .views.overview import overview
 from .views.employees import employees
 from .views.order import order
@@ -61,8 +61,6 @@ def logout():
     return redirect(url_for('login'))
 
 
-
-
 @app.route('/test/city')
 def test_city():
     db = get_db()
@@ -70,12 +68,4 @@ def test_city():
     cities = list(cur.execute('select * from city'))
     # print(f'cities: {cities}')
     return render_template('test_city.html', cities=cities)
-
-@app.route('/ajax',methods=["get","post"])
-def hello_world4():
-    name = request.values.get("name")
-    score = request.values.get("score")
-    print(f"name:{name},score:{score}")
-    return '10000'
-
 

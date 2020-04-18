@@ -5,14 +5,14 @@
 {% endblock %}
 
 {% block content %}
-
 <head>
 		<meta charset="utf-8">
 		<title></title>
 		<script src="../static/js/echarts.min.js"></script>
     <script src="../static/js/jquery-1.11.1.min.js"></script>
 </head>
-<body>
+
+    <body>
    <div id="main" style="width: 1000px;height: 500px;"></div>
    <script>
 
@@ -166,35 +166,38 @@ $.get('https://s3-us-west-2.amazonaws.com/s.cdpn.io/95368/USA_geo.json', functio
 
 <div class="row mt-5">
     <div class="col">
-        <h5>Customer geo distribution</h5>
-        {{ customer_geo_div|indent(4)|safe }}
-    </div>
-    
-</div>
-<div class="row mt-5">
-    <div class="col">
-        <h5>Max, avg, min price by categories</h5>
-        {{ repeat_div|indent(4)|safe }}
-    </div>
-</div>
-<div class="row mt-5">
-    <div class="col">
-        <h5>Max, avg, min price by categories</h5>
-        {{ gender_div|indent(4)|safe }}
-    </div>
-</div>
-<div class="row mt-5">
-    <div class="col">
-        <h5>Max, avg, min price by categories</h5>
+        <h5>Geo distribution for orders</h5>
         {{ geo_div|indent(4)|safe }}
     </div>
 </div>
+
+<div class="row mt-5">
+    <div class="col">
+        <h5>Repeat purchase analysis</h5>
+        {{ repeat_div|indent(4)|safe }}
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col">
+        <h5>Gender distribution for orders</h5>
+        {{ gender_div|indent(4)|safe }}
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col">
+        <h5>Customer geo distribution</h5>
+        {{ customer_geo_div|indent(4)|safe }}
+    </div>
+</div>
+
 {% endblock %}
 
 {% block more_js %}
 {{ js_resources|safe }}
-{{ customer_geo_js|safe }}
+{{ geo_js|safe }}
 {{ repeat_js|safe }}
 {{ gender_js|safe }}
-{{ geo_js|safe }}
+{{ customer_geo_js|safe }}
 {% endblock %}
