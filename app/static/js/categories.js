@@ -1,8 +1,7 @@
 var categories= echarts.init(document.getElementById("ct1"))
 ca_option = {
     title: {
-        text: '某站点用户访问来源',
-        subtext: '纯属虚构',
+        text: 'categories ratio',
         left: 'center'
     },
     tooltip: {
@@ -11,7 +10,7 @@ ca_option = {
     },
     legend: {
         orient: 'vertical',
-        left: 'left',
+        right: 'left',
         data: ['Confections', 'Shell fish', 'Cereals', 'Dairy', 'Beverages',  'Seafood',  'Meat', 'Poultry', 'Grain', 'Snails', 'Produce']
     },
     series: [
@@ -19,7 +18,7 @@ ca_option = {
             name: '访问来源',
             type: 'pie',
             radius: '55%',
-            center: ['50%', '60%'],
+            center: ['40%', '30%'],
             data: [
                 {value: 335, name: 'Confections'},
                 {value: 310, name: 'Shell fish'},
@@ -43,3 +42,4 @@ ca_option = {
         }
     ]
 }; categories.setOption(ca_option);
+

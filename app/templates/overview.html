@@ -5,6 +5,15 @@
 {% endblock %}
 
 {% block content %}
+<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="../static/js/echarts.min.js"></script>
+    <script src="../static/js/jquery-1.11.1.min.js"></script>
+    <script src="../static/js/controller.js"></script>
+  <link href="../static/css/dashboard.css" rel="stylesheet"/>
+</head>
+
 
 <div class="row mt-5">
     <div class="col text-center">
@@ -17,6 +26,57 @@
     </div>
 </div>
 
+<body>
+   <div id="ct1" style="width: 500px;height: 300px;"></div>
+
+   <script>
+
+ 	var categories= echarts.init(document.getElementById("ct1"))
+ca_option = {
+    title: {
+        text: 'categories ratio',
+        left: 'center'
+    },
+    tooltip: {
+        trigger: 'item',  //可选择指定产品进行比较
+        formatter: '{a} <br/>{b} : {c} ({d}%)'
+    },
+    legend: {
+        orient: 'vertical',
+        right: 'left',
+        data: ['Confections', 'Shell fish', 'Cereals', 'Dairy', 'Beverages',  'Seafood',  'Meat', 'Poultry', 'Grain', 'Snails', 'Produce']
+    },
+    series: [
+        {
+            name: 'product',
+            type: 'pie',
+            radius: '55%',
+            center: ['40%', '50%'],
+            data: [],
+            emphasis: {
+                itemStyle: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+            }
+        }
+    ]
+}; categories.setOption(ca_option);
+
+   </script>
+   <script>
+       $.ajax({
+        url:"/ct1",
+        success: function(data) {
+       ca_option.series[0].data=data.data
+            categories.setOption(ca_option)
+		},
+		error: function(xhr, type, errorThrown) {
+		}
+    })
+   </script>
+</body>
 
 <div class="row mt-5">
     <div class="col">
@@ -38,3 +98,4 @@
 {{ trend_script|safe }}
 {{ cat_js|safe }}
 {% endblock %}
+

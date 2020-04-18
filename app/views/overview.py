@@ -1,83 +1,59 @@
 from app import app
 from bokeh.embed import components
 from bokeh.plotting import figure
-from bokeh.models import NumeralTickFormatter
 from bokeh.resources import INLINE
 from bokeh.models import ColumnDataSource, HoverTool
 from flask import render_template, flash, redirect, url_for, request, jsonify, session
 from flask_login import current_user, login_user, logout_user, login_required
 from datetime import datetime
-
+from flask import Flask
+from flask import request
+from flask import render_template
+from flask import jsonify
 from app.db import get_db, query
 
 import numpy as np
 import pandas as pd
 
 @app.route('/overview', methods=['GET', 'POST'])
+@login_required
 def overview():
     """Render overview page
     
     TODO: improve tooltips style
     """
-    date_start = request.form.get('date_start', '2018-01-01')
-    date_end = request.form.get('date_end', '2018-01-31')
-    time_frame = request.form.get('time_frame')
-    # print(time_frame)
-
-    # total revenue
-    total_sales = get_total_revenue(date_start, date_end)
-    if 10**6 < total_sales < 10**9:
-        total_sales = '$ ' + str(round(total_sales / 10**6, 3)) + ' Million'
-    elif 10**9 < total_sales < 10**12:
-        total_sales = '$ ' + str(round(total_sales / 10**9, 3)) + ' Billion'
-    elif total_sales >= 10**12:
-        total_sales = '$ ' + str(round(total_sales / 10**12, 3)) + ' Trillion'
     
-    # total order numbers
+    date_start = request.form.get('date_start', '2018-01-01')
+    date_end = request.form.get('date_end', '2018-03-12')
+
+    print(f'date_start = {date_start}')
+    print(f'date_end = {date_end}')
+
+    # render template
+    total_sales = get_total_revenue(date_start, date_end)
     total_orders = get_total_orders(date_start, date_end)
-    if 10**3 < total_orders < 10**6:
-        total_orders = str(round(total_orders / 10**3, 3)) + ' Thousand'
-    elif 10**6 < total_orders < 10**9:
-        total_orders = str(round(total_orders / 10**6, 3)) + ' Million'
-    elif total_orders > 10**9:
-        total_orders = str(round(total_orders / 10**9, 3)) + ' Billion'
 
     # Revenue over time
     rev_source = ColumnDataSource(get_revenue_by_time(date_start, date_end))
-    rev_hover = HoverTool(tooltips=[('Date', '@date{%F}'), ('Revenue', '@revenue{$ 0.00 a}')],
+    rev_hover = HoverTool(tooltips=[('Date', '@date{%F}'), ('Revenue', '@revenue{$0,0}')],
         formatters={'@date': 'datetime'})
-    rev_fig = figure(sizing_mode='scale_width', x_axis_type='datetime', height=200,
-        tools=[rev_hover], toolbar_location=None,)
-    rev_fig.line(x='date', y='revenue', source=rev_source, line_width=2)
-    # styling visual
-    rev_fig.xaxis.axis_label = 'Time'
-    rev_fig.xaxis.axis_label_text_font_size = "12pt"
-    rev_fig.xaxis.axis_label_standoff = 10
-    rev_fig.yaxis.axis_label = 'Revenue'
-    rev_fig.yaxis.axis_label_text_font_size = "12pt"
-    rev_fig.yaxis.axis_label_standoff = 10
-    rev_fig.xaxis.major_label_text_font_size = '11pt'
-    rev_fig.yaxis.major_label_text_font_size = '11pt'
-    rev_fig.yaxis[0].formatter = NumeralTickFormatter(format="$ 0.00 a")
+    rev_fig = figure(sizing_mode='scale_width', x_axis_type='datetime', height=150,
+        tools=[rev_hover],)
+    rev_fig.line(x='date', y='revenue', source=rev_source)
+    rev_fig.xaxis.axis_label_text_font_size = '20pt'
+    rev_fig.yaxis.axis_label_text_font_size = '20pt'
     trend_script, trend_div = components(rev_fig)
     
     # Revenue by categoreis
     cat_data = get_revenue_by_category(date_start, date_end)
     cat_source = ColumnDataSource(cat_data)
-    cat_hover = HoverTool(tooltips=[('Category', '@category'), ('Revenue', '@revenue{$ 0.00 a}')])
-    cat_fig = figure(x_range = cat_data.category, sizing_mode='scale_width', height=300, tools=[cat_hover], 
-        toolbar_location=None,)
-    # styling visual
-    cat_fig.vbar(x='category', top='revenue', source=cat_source, width=0.9, hover_color='red', hover_fill_alpha=0.8)
-    cat_fig.xaxis.axis_label = 'Category'
-    cat_fig.xaxis.axis_label_text_font_size = "12pt"
-    cat_fig.xaxis.axis_label_standoff = 10
-    cat_fig.yaxis.axis_label = 'Revenue'
-    cat_fig.yaxis.axis_label_text_font_size = "12pt"
-    cat_fig.yaxis.axis_label_standoff = 10
-    cat_fig.xaxis.major_label_text_font_size = '10pt'
-    cat_fig.yaxis.major_label_text_font_size = '11pt'
-    cat_fig.yaxis[0].formatter = NumeralTickFormatter(format="$ 0.00 a")
+    cat_hover = HoverTool(tooltips=[('Category', '@category'), ('Revenue', '@revenue{$0,0}')])
+    cat_fig = figure(x_range = cat_data.category, 
+        width=650, height=200,
+        tools=[cat_hover])
+    # print(f'cat_data:\n {cat_data.head()}')
+    cat_fig.vbar(x='category', top='revenue', source=cat_source, 
+        width=0.9, hover_color='red', hover_fill_alpha=0.8)
     cat_js, cat_div = components(cat_fig)
  
     # grab the static resources
@@ -154,3 +130,29 @@ def get_revenue_by_category(date_start, date_end):
     for row in rows:
         df.loc[len(df), :] = row
     return df
+
+def get_revenue_by_category1(date_start, date_end):
+    """
+    Return the total revenue for each category within the time range.
+    """
+
+    sql = f"""
+    select productcategory.name, sum(sales.total)
+    from sales, product, productcategory
+    where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD') 
+        and sales.productID = product.productID 
+        and product.productID = productcategory.categoryID
+    group by productcategory.name
+    order by sum(sales.total) desc"""
+    res = query(sql)
+    return res
+
+@app.route('/ct1')
+def get_revenue_by_category2():
+    date_start = request.form.get('date_start', '2018-01-01')
+    date_end = request.form.get('date_end', '2018-01-31')
+    res = []
+    for tup in get_revenue_by_category1(date_start,date_end):
+
+        res.append({"name":(tup[0]),"value":int(tup[1])})
+    return jsonify({"data": res})
