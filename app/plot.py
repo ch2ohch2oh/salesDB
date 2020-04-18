@@ -14,6 +14,31 @@ def formatter(val, type='number'):
         val = str(round(val / 10**12, 3)) + ' Trillion'
     return '$ ' + val if type == 'dollar' else val
 
+def line(data, x, y, y_type='number'):
+    x_range = data.loc[:, x]
+    data_source = ColumnDataSource(data)
+    # print(x_range)
+    formats = '$ 0.00 a' if y_type == 'dollar' else '0.00 a'
+    if x == 'date':
+        rev_hover = HoverTool(tooltips=[('Date', '@date{%F}'), (y.capitalize(), '@'+y+'{'+formats+'}')], 
+            formatters={'@date': 'datetime'})
+    else:
+        data_hover = HoverTool(tooltips=[(x.capitalize(), '@'+x), (y.capitalize(), '@'+y+'{'+formats+'}')])
+    data_fig = figure(x_range = x_range, sizing_mode='scale_width', height=300, tools=[data_hover], 
+        toolbar_location=None)
+    # styling visual
+    data_fig.line(x=x, y=y, source=data_source, line_width=2)
+    data_fig.xaxis.axis_label = x.capitalize()
+    data_fig.xaxis.axis_label_text_font_size = "12pt"
+    data_fig.xaxis.axis_label_standoff = 10
+    data_fig.yaxis.axis_label = y.capitalize()
+    data_fig.yaxis.axis_label_text_font_size = "12pt"
+    data_fig.yaxis.axis_label_standoff = 10
+    data_fig.xaxis.major_label_text_font_size = '10pt'
+    data_fig.yaxis.major_label_text_font_size = '11pt'
+    data_fig.yaxis[0].formatter = NumeralTickFormatter(format=formats)
+    return components(data_fig)
+
 def vbar(data, x, y, y_type='number'):
     x_range = data.loc[:, x]
     data_source = ColumnDataSource(data)
