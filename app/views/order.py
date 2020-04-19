@@ -128,7 +128,7 @@ def get_num_order_by_cat(date_start, date_end):
         and sales.productID = product.productID
         and product.categoryID = productcategory.categoryID
     group by productcategory.name
-    order by count(salesID)
+    order by count(salesID) desc
     """
     rows = query(sql)
     df = pd.DataFrame(columns=['category', 'order_number'])
