@@ -39,8 +39,8 @@ def query(sql, limit=None):
     time_end = time.time()
     logger.info(f'{len(rows)} row(s) fetched in {time_end - time_start:.5f} seconds')
     # Show the first 5 rows for debugging
-    # for i in range(min(len(rows), 5)):
-    #    logger.debug(f'{rows[i]}')
+    for i in range(min(len(rows), 5)):
+        logger.debug(f'{rows[i]}')
     return rows
 
 @app.teardown_appcontext

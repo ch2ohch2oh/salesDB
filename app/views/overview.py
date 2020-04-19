@@ -37,10 +37,6 @@ def overview():
     time_dict = {'date': 'date', 'ww': 'week', 'mon': 'month', 'q': 'quarter'}
     trend_source = get_revenue_by_time(date_start, date_end, time_frame)
     trend_script, trend_div = line(trend_source, time_dict[time_frame], 'revenue', 'dollar')
-    
-    # Revenue by categoreis
-    cat_data = get_revenue_by_category(date_start, date_end)
-    cat_js, cat_div = vbar(cat_data, 'category', 'revenue', 'dollar')
 
     # grab the static resources
     js_resources = INLINE.render_js()
@@ -50,8 +46,6 @@ def overview():
         'overview.html',
         trend_script=trend_script,
         trend_div=trend_div,
-        cat_js=cat_js,
-        cat_div=cat_div,
         js_resources=js_resources,
         css_resources=css_resources,
         total_sales=total_sales,
@@ -91,7 +85,8 @@ def get_revenue_by_time(date_start, date_end, time_frame):
         select salesdate, sum(total)
         from sales 
         where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD') 
-        group by salesdate order by salesdate
+        group by salesdate
+        order by salesdate
         """
         rows = query(sql)
         df = pd.DataFrame(columns=['date', 'revenue'])
@@ -111,25 +106,4 @@ def get_revenue_by_time(date_start, date_end, time_frame):
         df = pd.DataFrame(columns=[time_dict[time_frame], 'revenue'])
         for row in rows:
             df.loc[len(df), :] = row
-        print(df)
-    return df
-
-def get_revenue_by_category(date_start, date_end):
-    """
-    Return the total revenue for each category within the time range.
-    """
-
-    sql = f"""
-    select productcategory.name, sum(sales.total)
-    from sales, product, productcategory
-    where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD') 
-        and sales.productID = product.productID 
-        and product.productID = productcategory.categoryID
-    group by productcategory.name
-    order by sum(sales.total) desc"""
-    rows = query(sql)
-
-    df = pd.DataFrame(columns=['category', 'revenue'])
-    for row in rows:
-        df.loc[len(df), :] = row
     return df

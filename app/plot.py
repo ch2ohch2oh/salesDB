@@ -1,6 +1,6 @@
 from app import app
 from bokeh.embed import components
-from bokeh.models import ColumnDataSource, HoverTool, NumeralTickFormatter
+from bokeh.models import ColumnDataSource, HoverTool, NumeralTickFormatter, Legend
 from bokeh.plotting import figure, show
 from bokeh.palettes import brewer
 
@@ -98,14 +98,18 @@ def multiline(data, x, y, y_type='number', *args):
     else:
         data_fig = figure(x_range = x_range, sizing_mode='scale_width', height=300, toolbar_location=None)
     # plot
-    color = brewer['Spectral'][len(args)]
+    color = brewer['Paired'][len(args)]
     i = 0
+    legend_item = []
     for i in range(len(args)):
         plot = data_fig.line(x=x, y=args[i], line_color=color[i], line_width=5, source=data_source)
         data_fig.add_tools(HoverTool(renderers=[plot], tooltips=[(x.capitalize(), '@'+x), (args[i].capitalize(), '@'+args[i]+'{'+formats+'}')],
             mode='vline'))
+        legend_item.append((args[i], [plot]))
         i += 1
     # styling visual
+    legend = Legend(items=legend_item, location='center')
+    data_fig.add_layout(legend, 'right')
     data_fig.xaxis.axis_label = x.capitalize()
     data_fig.xaxis.axis_label_text_font_size = "12pt"
     data_fig.xaxis.axis_label_standoff = 10

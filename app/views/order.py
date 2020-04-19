@@ -23,18 +23,38 @@ def order():
     '''
     date_start = request.form.get('date_start', '2018-01-01')
     date_end = request.form.get('date_end', '2018-01-31')
-    time_frame = request.form.get('time_frame')
-    # print(time_frame)
+    if request.form.get('time_frame') is None:
+        time_frame = 'date'
+    else:
+        time_frame = request.form.get('time_frame')
 
     # render template
     best_product = get_best_product(date_start, date_end)
     avg_price = formatter(get_avg_price(date_start, date_end), 'dollar')
 
+    # Revenue by categories
+    cat_data = get_rev_by_cat(date_start, date_end)
+    rev_js, rev_div = vbar(cat_data, 'category', 'revenue', 'dollar')
+
     # Order number by categories
     order_num_data = get_num_order_by_cat(date_start, date_end)
     order_num_js, order_num_div = vbar(order_num_data, 'category', 'order_number')
 
-    # Max, avg, min price for top 6 categories
+    time_dict = {'date': 'date', 'ww': 'week', 'mon': 'month', 'q': 'quarter'}
+
+    # Top 5 revenue category trend
+    rev_top5 = get_cat_top5(date_start, date_end, 'revenue')
+    rev_trend_data = get_cat_trend(date_start, date_end, time_frame, 'revenue')
+    rev_trend_js, rev_trend_div = multiline(rev_trend_data, time_dict[time_frame], 'revenue', 'dollar', 
+        rev_top5[0], rev_top5[1], rev_top5[2], rev_top5[3], rev_top5[4])
+
+    # top 5 order number category trend
+    num_top5 = get_cat_top5(date_start, date_end, 'order_number')
+    num_trend_data = get_cat_trend(date_start, date_end, time_frame, 'order_number')
+    num_trend_js, num_trend_div = multiline(num_trend_data, time_dict[time_frame], 'order_number', 'number',
+        num_top5[0], num_top5[1], num_top5[2], num_top5[3], num_top5[4])
+
+    # Max, avg, min price for top 5 categories
     price_data = get_max_avg_min_price_by_cat(date_start, date_end)
     price_js, price_div = multiline(price_data, 'category', 'price', 'dollar', 
         'max_price', 'avg_price', 'min_price')
@@ -45,10 +65,16 @@ def order():
  
     html = render_template(
         'order.html',
+        rev_js=rev_js,
+        rev_div=rev_div,
         order_num_js=order_num_js,
         order_num_div=order_num_div,
         price_js=price_js,
         price_div=price_div,
+        rev_trend_js=rev_trend_js,
+        rev_trend_div=rev_trend_div,
+        num_trend_js=num_trend_js,
+        num_trend_div=num_trend_div,
         js_resources=js_resources,
         css_resources=css_resources,
         best_product=best_product,
@@ -109,6 +135,26 @@ def get_num_order_by_cat(date_start, date_end):
         df.loc[len(df), :] = row
     return df
 
+
+def get_rev_by_cat(date_start, date_end):
+    """
+    Return the total revenue for each category within the time range.
+    """
+    sql = f"""
+    select productcategory.name, sum(sales.total)
+    from sales, product, productcategory
+    where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD') 
+        and sales.productID = product.productID 
+        and product.productID = productcategory.categoryID
+    group by productcategory.name
+    order by sum(sales.total) desc"""
+    rows = query(sql)
+
+    df = pd.DataFrame(columns=['category', 'revenue'])
+    for row in rows:
+        df.loc[len(df), :] = row
+    return df
+
 def get_max_avg_min_price_by_cat(date_start, date_end):
     """
     Return the max, average and minimum price for each category within the time range.
@@ -122,10 +168,93 @@ def get_max_avg_min_price_by_cat(date_start, date_end):
               and product.categoryID = productcategory.categoryID
           group by productcategory.name
           order by count(salesID))
-    where rownum < 7
+    where rownum < 6
     """
     rows = query(sql)
     df = pd.DataFrame(columns=['category', 'max_price', 'avg_price', 'min_price'])
     for row in rows:
         df.loc[len(df), :] = row
+    return df
+
+
+def get_cat_top5(date_start, date_end, basis='revenue'):
+    '''
+    select the top 5 category compare by order number or revenue
+    '''
+    basis_dict = {'revenue': 'sum(sales.total)', 'order_number': 'count(sales.salesID)'}
+    sql = f"""
+    select category
+    from (select productcategory.name as category, {basis_dict[basis]}
+          from sales, product, productcategory
+          where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD')  
+              and sales.productID = product.productID 
+              and product.productID = productcategory.categoryID
+          group by productcategory.name
+          order by {basis_dict[basis]} desc)
+    where rownum < 6
+    """
+    rows = query(sql)
+    category = []
+    for row in rows:
+        category.append(row[0])
+    return category
+
+
+def get_cat_trend(date_start, date_end, time_frame, basis='revenue'):
+    """
+    Return the revenue trend of top 5 category
+    """
+    category = get_cat_top5(date_start, date_end, basis)
+
+    basis_dict = {'revenue': 'sum(sales.total)', 'order_number': 'count(sales.salesID)'}
+    time_dict = {'date': 'date', 'ww': 'week', 'mon': 'month', 'q': 'quarter'}
+
+    if time_frame == 'date' or time_frame is None: # None is used for switch page default frame
+        sql = f'''
+        select salesdate, 
+            sum(case when category = '{category[0]}' then {basis} else 0 end) as {category[0]},
+            sum(case when category = '{category[1]}' then {basis} else 0 end) as {category[1]},
+            sum(case when category = '{category[2]}' then {basis} else 0 end) as {category[2]},
+            sum(case when category = '{category[3]}' then {basis} else 0 end) as {category[3]},
+            sum(case when category = '{category[4]}' then {basis} else 0 end) as {category[4]}
+        from
+        (select salesdate, productcategory.name as category, {basis_dict[basis]} as {basis}
+        from sales, product, productcategory
+        where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD') 
+            and sales.productID = product.productID 
+            and product.productID = productcategory.categoryID
+            and productcategory.name in ('{category[0]}', '{category[1]}', '{category[2]}', '{category[3]}', '{category[4]}')
+        group by salesdate, productcategory.name)
+        group by salesdate
+        order by salesdate
+        '''
+        rows = query(sql)
+        df = pd.DataFrame(columns=['date', category[0], category[1], category[2], category[3], category[4]])
+        for row in rows:
+            df.loc[len(df), :] = row
+        df['date'] = pd.to_datetime(df['date'])
+    else:
+        sql = f'''
+        select range, 
+            sum(case when category = '{category[0]}' then {basis} else 0 end) as {category[0]},
+            sum(case when category = '{category[1]}' then {basis} else 0 end) as {category[1]},
+            sum(case when category = '{category[2]}' then {basis} else 0 end) as {category[2]},
+            sum(case when category = '{category[3]}' then {basis} else 0 end) as {category[3]},
+            sum(case when category = '{category[4]}' then {basis} else 0 end) as {category[4]}
+        from
+        (select to_char(salesdate, '{time_frame}') as range, productcategory.name as category, {basis_dict[basis]} as {basis}
+        from sales, product, productcategory
+        where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD') 
+            and salesdate is Not null
+            and sales.productID = product.productID 
+            and product.productID = productcategory.categoryID
+            and productcategory.name in ('{category[0]}', '{category[1]}', '{category[2]}', '{category[3]}', '{category[4]}')
+        group by to_char(salesdate, '{time_frame}'), productcategory.name)
+        group by range
+        order by range
+        '''
+        rows = query(sql)
+        df = pd.DataFrame(columns=[time_dict[time_frame], category[0], category[1], category[2], category[3], category[4]])
+        for row in rows:
+            df.loc[len(df), :] = row
     return df
