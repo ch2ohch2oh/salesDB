@@ -21,20 +21,20 @@
 <div class="row mt-5">
     <div class="col">
         <h5>Revenue trends</h5>
-        {{ trend_div|indent(4)|safe }}
+        {{ rev_div|indent(4)|safe }}
     </div>
     
 </div>
 <div class="row mt-5">
     <div class="col">
-        <h5>Revenue by categories</h5>
-        {{ cat_div|indent(4)|safe }}
+        <h5>Order number trends</h5>
+        {{ num_div|indent(4)|safe }}
     </div>
 </div>
 {% endblock %}
 
 {% block more_js %}
 {{ js_resources|safe }}
-{{ trend_script|safe }}
-{{ cat_js|safe }}
+{{ rev_js|safe }}
+{{ num_js|safe }}
 {% endblock %}

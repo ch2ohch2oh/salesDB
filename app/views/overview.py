@@ -33,10 +33,15 @@ def overview():
     # total order numbers
     total_orders = formatter(get_total_orders(date_start, date_end))
 
-    # Revenue over time
     time_dict = {'date': 'date', 'ww': 'week', 'mon': 'month', 'q': 'quarter'}
-    trend_source = get_revenue_by_time(date_start, date_end, time_frame)
-    trend_script, trend_div = line(trend_source, time_dict[time_frame], 'revenue', 'dollar')
+
+    # Revenue over time
+    rev_data = get_revenue_by_time(date_start, date_end, time_frame)
+    rev_js, rev_div = line(rev_data, time_dict[time_frame], 'revenue', 'dollar')
+
+    # Order number over time
+    num_data = get_order_num_by_time(date_start, date_end, time_frame)
+    num_js, num_div = line(num_data, time_dict[time_frame], 'order_number', 'number')
 
     # grab the static resources
     js_resources = INLINE.render_js()
@@ -44,8 +49,10 @@ def overview():
  
     html = render_template(
         'overview.html',
-        trend_script=trend_script,
-        trend_div=trend_div,
+        rev_js=rev_js,
+        rev_div=rev_div,
+        num_js=num_js,
+        num_div=num_div,
         js_resources=js_resources,
         css_resources=css_resources,
         total_sales=total_sales,
@@ -104,6 +111,39 @@ def get_revenue_by_time(date_start, date_end, time_frame):
         """
         rows = query(sql)
         df = pd.DataFrame(columns=[time_dict[time_frame], 'revenue'])
+        for row in rows:
+            df.loc[len(df), :] = row
+    return df
+
+def get_order_num_by_time(date_start, date_end, time_frame):
+    """
+    Return the revenue for each day within the time range.
+    """
+    time_dict = {'date': 'date', 'ww': 'week', 'mon': 'month', 'q': 'quarter'}
+    if time_frame == 'date' or time_frame is None: # None is used for switch page default frame
+        sql = f"""
+        select salesdate, count(salesID)
+        from sales 
+        where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD') 
+        group by salesdate
+        order by salesdate
+        """
+        rows = query(sql)
+        df = pd.DataFrame(columns=['date', 'order_number'])
+        for row in rows:
+            df.loc[len(df), :] = row
+        df['date'] = pd.to_datetime(df['date'])
+    else:
+        sql = f"""
+        select to_char(salesdate, '{time_frame}'), count(salesID)
+        from sales 
+        where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD')
+            and salesdate is Not null
+        group by to_char(salesdate, '{time_frame}')
+        order by to_char(salesdate, '{time_frame}')
+        """
+        rows = query(sql)
+        df = pd.DataFrame(columns=[time_dict[time_frame], 'order_number'])
         for row in rows:
             df.loc[len(df), :] = row
     return df
