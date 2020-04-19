@@ -14,3 +14,4 @@ Werkzeug==1.0.0
 WTForms==2.2.1
 pytest==4.6.4
 python-dotenv==0.12.0
+   
