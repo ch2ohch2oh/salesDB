@@ -1,3 +1,9 @@
+{#<head>#}
+{#		<script src="../static/js/echarts.min.js"></script>#}
+{#    <script src="../static/js/jquery-1.11.1.min.js"></script>#}
+{#      <link href="../static/css/dashboard.css" rel="stylesheet"/>#}
+{#    <script src="../static/js/controller.js"></script>#}
+{#</head>#}
 {% extends "dashboard.html" %}
 
 {% block more_header %}
@@ -6,14 +12,83 @@
 
 {% block content %}
 
+{#     <body>#}
+{#   <div id="ct1" style="width: 400px;height: 300px;"></div>#}
+{##}
+{#   <script>#}
+{##}
+{# 	var categories= echarts.init(document.getElementById("ct1"))#}
+{#ca_option = {#}
+{#    title: {#}
+{#        text: 'Categories ratio',#}
+{#        left: 'center'#}
+{#    },#}
+{#    tooltip: {#}
+{#        trigger: 'item',  //可选择指定产品进行比较#}
+{#        formatter: '{a} <br/>{b} : {c} ({d}%)'#}
+{#    },#}
+{#    legend: {#}
+{#        orient: 'vertical',#}
+{#        right: 'left',#}
+{#        data: ['Confections', 'Shell fish', 'Cereals', 'Dairy', 'Beverages',  'Seafood',  'Meat', 'Poultry', 'Grain', 'Snails', 'Produce']#}
+{#    },#}
+{#    series: [#}
+{#        {#}
+{#            name: 'product',#}
+{#            type: 'pie',#}
+{#            radius: '55%',#}
+{#            center: ['40%', '50%'],#}
+{#            data: [],#}
+{#            emphasis: {#}
+{#                itemStyle: {#}
+{#                    shadowBlur: 10,#}
+{#                    shadowOffsetX: 0,#}
+{#                    shadowColor: 'rgba(0, 0, 0, 0.5)'#}
+{#                }#}
+{#            }#}
+{#        }#}
+{#    ]#}
+{#}; categories.setOption(ca_option);#}
+{##}
+{#   </script>#}
+{#   <script>#}
+{#       $.ajax({#}
+{#        url:"/ct1",#}
+{#           type:"get",#}
+{#        success: function(data) {#}
+{#       ca_option.series[0].data=data.data#}
+{#            categories.setOption(ca_option)#}
+{#		},#}
+{#		error: function(xhr, type, errorThrown) {#}
+{#		}#}
+{#    })#}
+{#   </script>#}
+{#</body>#}
+
 <div class="row mt-5">
     <div class="col text-center">
-        <h5>Best product</h5>
+        <h5>Best selling product</h5>
         <h3>{{ best_product }}</h3>
     </div>
     <div class="col text-center">
-        <h5>Average price</h5>
+        <h5>Average price of products</h5>
         <h3>{{ avg_price }}</h3>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col">
+        <h5>Revenue by categories</h5>
+        {{ rev_div|indent(4)|safe }}
+    </div>
+</div>
+
+
+
+<div class="row mt-5">
+    <div class="col">
+        <h5>Revenue trend for top 5 categories</h5>
+        {{ rev_trend_div|indent(4)|safe }}
     </div>
 </div>
 
@@ -22,11 +97,18 @@
         <h5>Order number by categories</h5>
         {{ order_num_div|indent(4)|safe }}
     </div>
-    
 </div>
+
 <div class="row mt-5">
     <div class="col">
-        <h5>Max, avg, min price by categories</h5>
+        <h5>Order number trend for top 5 categories</h5>
+        {{ num_trend_div|indent(4)|safe }}
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col ">
+        <h5>Max, avg, min price of products in top 5 categories on order numbers</h5>
         {{ price_div|indent(4)|safe }}
     </div>
 </div>
@@ -34,6 +116,9 @@
 
 {% block more_js %}
 {{ js_resources|safe }}
+{{ rev_js|safe }}
+{{ rev_trend_js|safe }}
 {{ order_num_js|safe }}
+{{ num_trend_js|safe }}
 {{ price_js|safe }}
 {% endblock %}

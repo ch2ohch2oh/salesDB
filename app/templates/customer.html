@@ -1,3 +1,7 @@
+<head>
+		<script src="../static/js/echarts.min.js"></script>
+    <script src="../static/js/jquery-1.11.1.min.js"></script>
+</head>
 {% extends "dashboard.html" %}
 
 {% block more_header %}
@@ -5,18 +9,12 @@
 {% endblock %}
 
 {% block content %}
-<head>
-		<meta charset="utf-8">
-		<title></title>
-		<script src="../static/js/echarts.min.js"></script>
-    <script src="../static/js/jquery-1.11.1.min.js"></script>
-</head>
 
-    <body>
-   <div id="main" style="width: 1000px;height: 500px;"></div>
+     <body>
+   <div id="map" style="width: 1000px;height: 500px;"></div>
    <script>
 
- 	var myChart = echarts.init(document.getElementById('main'));
+ 	var myChart = echarts.init(document.getElementById('map'));
 
         // Specify configurations and data graphs
 myChart.showLoading();
@@ -58,7 +56,7 @@ $.get('https://s3-us-west-2.amazonaws.com/s.cdpn.io/95368/USA_geo.json', functio
         },
         visualMap: {
             left: 'right',
-            min: 500,
+            min: 0,
             max: 10000,
             color: ['orangered','yellow','lightskyblue'],
             text:['High','Low'],
@@ -71,7 +69,7 @@ $.get('https://s3-us-west-2.amazonaws.com/s.cdpn.io/95368/USA_geo.json', functio
             top: 'top',
             feature : {
                 mark : {show: true},
-                dataView : {show: true, readOnly: false},  //前台可改变数据并传到后台
+                dataView : {show: true, readOnly: false},  //前台可改变数据
                 restore : {show: true},
                 saveAsImage : {show: true}
             }
@@ -89,60 +87,7 @@ $.get('https://s3-us-west-2.amazonaws.com/s.cdpn.io/95368/USA_geo.json', functio
                 textFixed : {
                     Alaska : [20, -20]
                 },
-                data:[
-                    {name : 'Alabama', value : 4822},   //大概估计的数据，需要在city表里面插入州属性statename，json和ajax的函数接口已经在customer.py写好
-                    {name : 'Alaska', value : 7314},
-                    {name : 'Arizona', value : 6553},
-                    {name : 'Arkansas', value : 2949},
-                    {name : 'California', value : 38041},
-                    {name : 'Colorado', value : 5187},
-                    {name : 'Connecticut', value : 3590},
-                    {name : 'Delaware', value : 9170},
-                    {name : 'District of Columbia', value : 6323},
-                    {name : 'Florida', value : 19317},
-                    {name : 'Georgia', value : 9919},
-                    {name : 'Hawaii', value : 1392},
-                    {name : 'Idaho', value : 1595},
-                    {name : 'Illinois', value : 1287},
-                    {name : 'Indiana', value : 6537},
-                    {name : 'Iowa', value : 3074},
-                    {name : 'Kansas', value : 2885},
-                    {name : 'Kentucky', value : 4380},
-                    {name : 'Louisiana', value : 4601},
-                    {name : 'Maine', value : 1329},
-                    {name : 'Maryland', value : 5884},
-                    {name : 'Massachusetts', value : 6646},
-                    {name : 'Michigan', value : 9883},
-                    {name : 'Minnesota', value : 5379},
-                    {name : 'Mississippi', value : 2984},
-                    {name : 'Missouri', value : 6021},
-                    {name : 'Montana', value : 1005},
-                    {name : 'Nebraska', value : 1855},
-                    {name : 'Nevada', value : 2758},
-                    {name : 'New Hampshire', value : 1320},
-                    {name : 'New Jersey', value : 8864},
-                    {name : 'New Mexico', value : 2085},
-                    {name : 'New York', value : 1957},
-                    {name : 'North Carolina', value : 9752},
-                    {name : 'North Dakota', value : 6996},
-                    {name : 'Ohio', value : 1154},
-                    {name : 'Oklahoma', value : 3814},
-                    {name : 'Oregon', value : 3899},
-                    {name : 'Pennsylvania', value : 1276},
-                    {name : 'Rhode Island', value : 1050},
-                    {name : 'South Carolina', value : 4723},
-                    {name : 'South Dakota', value : 8333},
-                    {name : 'Tennessee', value : 6456},
-                    {name : 'Texas', value : 2605},
-                    {name : 'Utah', value : 2855},
-                    {name : 'Vermont', value : 6260},
-                    {name : 'Virginia', value : 8185},
-                    {name : 'Washington', value : 6897},
-                    {name : 'West Virginia', value : 185},
-                    {name : 'Wisconsin', value : 5726},
-                    {name : 'Wyoming', value : 5764},
-                    {name : 'Puerto Rico', value : 3667}
-                ]
+                data:[] //传入数据
             }
         ]
     };
@@ -152,7 +97,7 @@ $.get('https://s3-us-west-2.amazonaws.com/s.cdpn.io/95368/USA_geo.json', functio
    </script>
 <script>
        $.ajax({
-        url:"/main",
+        url:"/map",
         success: function(data) {
        map_option.series[0].data=data.data
             myChart.setOption(map_option)
@@ -163,11 +108,24 @@ $.get('https://s3-us-west-2.amazonaws.com/s.cdpn.io/95368/USA_geo.json', functio
    </script>
 
 </body>
+<div class="row mt-5">
+    <div class="col">
+        <h5>Active customer number trend</h5>
+        {{ act_div|indent(4)|safe }}
+    </div>
+</div>
 
 <div class="row mt-5">
     <div class="col">
-        <h5>Geo distribution for orders</h5>
+        <h5>Geo distribution of order number for different category</h5>
         {{ geo_div|indent(4)|safe }}
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col">
+        <h5>Order number trend for customer in different geo area</h5>
+        {{ geo_trend_div|indent(4)|safe }}
     </div>
 </div>
 
@@ -187,7 +145,7 @@ $.get('https://s3-us-west-2.amazonaws.com/s.cdpn.io/95368/USA_geo.json', functio
 
 <div class="row mt-5">
     <div class="col">
-        <h5>Customer geo distribution</h5>
+        <h5>Top 10 state customer geo distribution</h5>
         {{ customer_geo_div|indent(4)|safe }}
     </div>
 </div>
@@ -196,7 +154,9 @@ $.get('https://s3-us-west-2.amazonaws.com/s.cdpn.io/95368/USA_geo.json', functio
 
 {% block more_js %}
 {{ js_resources|safe }}
+{{ act_js|safe }}
 {{ geo_js|safe }}
+{{ geo_trend_js|safe }}
 {{ repeat_js|safe }}
 {{ gender_js|safe }}
 {{ customer_geo_js|safe }}

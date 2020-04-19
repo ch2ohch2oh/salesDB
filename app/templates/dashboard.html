@@ -9,9 +9,7 @@
   <link rel="icon" href="">
 
   <title>{% block title %}{% endblock %}</title>
-   <script src="../static/js/jquery-1.11.1.min.js"></script>
-  <script src="../static/js/echarts.min.js"></script>
-  <script src="../static/js/controller.js"></script>
+
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" 
     integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
   <link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet">
@@ -56,11 +54,10 @@
         <input name="date_end" id="date_end" type="date" class="form-control mx-sm-3 my-2" value="20181212">
         <select name="time_frame" class="form-control mx-sm-3 my-2" id="time_frame">
             <option selected>Choose...</option>          
-            <option value='Daily'>Daily</option>
-            <option value='Weekly'>Weekly</option>
-            <option value='Biweekly'>Biweekly</option>
-            <option value='Monthly'>Monthly</option>
-            <option value='Quarterly'>Quarterly</option>
+            <option value='date'>Daily</option>
+            <option value='ww'>Weekly</option>
+            <option value='mon'>Monthly</option>
+            <option value='q'>Quarterly</option>
         </select>
         <button type="submit" class="btn btn-primary my-2">GO!</button>
       </div>
@@ -92,12 +89,14 @@
     //$('#time_frame').val('{{time_frame}}')
 
     // Hide time frame drop list for pages other than overview
-    $(window).on("load", function() {
+    /*
+      $(window).on("load", function() {
       var pagename = window.location.pathname.split("/").pop();
       if(pagename.toLocaleLowerCase() != "overview") {
         $("#time_frame").css("display", "none");
       }
     });
+    */
 
     // Save user selected time frame (weekly, biweekkly, monthly etc.)
     $(window).on("load", function() {

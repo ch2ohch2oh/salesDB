@@ -16,6 +16,7 @@ from datetime import datetime
 from math import pi
 
 from app.db import get_db, query
+from app.plot import formatter, hbar, multiline
 
 import pandas as pd
 import numpy as np
@@ -30,79 +31,49 @@ def employees():
     date_start = request.form.get('date_start', '2018-01-01')
     date_end = request.form.get('date_end', '2018-01-31')
     time_frame = request.form.get('time_frame')
-    # print(time_frame)
+    if request.form.get('time_frame') is None:
+        time_frame = 'date'
+    else:
+        time_frame = request.form.get('time_frame')
     
     # average order_numbers
     avg = get_avg_selling_per(date_start, date_end)
-    avg_order = avg[0][0]
-    if 10**3 < avg_order < 10**6:
-        avg_order = str(round(avg_order / 10**3, 3)) + ' Thousand'
-    elif 10**6 < avg_order < 10**9:
-        avg_order = str(round(avg_order / 10**6, 3)) + ' Million'
-    elif avg_order > 10**9:
-        avg_order = str(round(avg_order / 10**9, 3)) + ' Billion'
-
-    avg_revenue = avg[1][0]
-    if 10**6 < avg_revenue < 10**9:
-        avg_revenue = '$ ' + str(round(avg_revenue / 10**6, 3)) + ' Million'
-    elif 10**9 < avg_revenue < 10**12:
-        avg_revenue = '$ ' + str(round(avg_revenue / 10**9, 3)) + ' Billion'
-    elif avg_revenue >= 10**12:
-        avg_revenue = '$ ' + str(round(avg_revenue / 10**12, 3)) + ' Trillion'
+    avg_order = formatter(avg[0][0])
+    avg_revenue = formatter(avg[1][0], 'dollar')
 
     # most revenue
     revenue_total = get_employee_revenue_total(date_start, date_end)
+    # sql result is reversed due to the hbar layout
+    most_revenue_name = revenue_total.loc[9, 'employee']
     
-    # Revenue by employees
-    most_revenue_name = revenue_total.loc[9, 'name']
-    revenue_range = revenue_total.revenue.max() - revenue_total.revenue.min()
-
-    # revenue by employee
-    revenue_total_source = ColumnDataSource(revenue_total)
-    revenue_total_hover = HoverTool(tooltips=[('Employee', '@name'), ('Revenue', '@revenue{$ 0.00 a}')])
-    revenue_total_fig = figure(sizing_mode='scale_width', height=300, y_range=revenue_total.name,
-        x_range=(revenue_total.revenue.min() - revenue_range/10, revenue_total.revenue.max()), 
-        tools=[revenue_total_hover], toolbar_location=None,)
-    revenue_total_fig.hbar(y='name', right='revenue', source=revenue_total_source, height=0.8, 
-        hover_color='red', hover_fill_alpha=0.8)
-    # styling visual
-    revenue_total_fig.xaxis.axis_label = 'Revenue'
-    revenue_total_fig.xaxis.axis_label_text_font_size = "12pt"
-    revenue_total_fig.xaxis.axis_label_standoff = 10
-    revenue_total_fig.yaxis.axis_label = 'Employee'
-    revenue_total_fig.yaxis.axis_label_text_font_size = "12pt"
-    revenue_total_fig.yaxis.axis_label_standoff = 10
-    revenue_total_fig.xaxis.major_label_text_font_size = '11pt'
-    revenue_total_fig.yaxis.major_label_text_font_size = '11pt'
-    revenue_total_fig.xaxis[0].formatter = NumeralTickFormatter(format="$ 0.00 a")
-    js_revenue_total, div_revenue_total = components(revenue_total_fig)
+    # Revenue by employee
+    js_revenue_total, div_revenue_total = hbar(revenue_total, 'revenue', 'employee')
 
     # most orders
     orders_total = get_employee_orders_total(date_start, date_end)
-    orders_source = ColumnDataSource(orders_total)
-    most_orders_name = orders_total.loc[9, 'name']
-    orders_range = orders_total.orders.max() - orders_total.orders.min()
+    # sql result is reversed due to the hbar layout
+    most_orders_name = orders_total.loc[9, 'employee']
     
-    # orders by employees
-    orders_total_source = ColumnDataSource(orders_total)
-    orders_total_hover = HoverTool(tooltips=[('Employee', '@name'), ('Order number', '@orders{0.00 a}')])
-    orders_total_fig = figure(sizing_mode='scale_width', height=300,
-        y_range=orders_total.name, x_range=(orders_total.orders.min() - orders_range/10, orders_total.orders.max()),
-        tools=[orders_total_hover], toolbar_location=None,)
-    orders_total_fig.hbar(y='name', right='orders', source=orders_total_source, height=0.8, 
-        hover_color='red', hover_fill_alpha=0.8)
-    # styling visual
-    orders_total_fig.xaxis.axis_label = 'Employee'
-    orders_total_fig.xaxis.axis_label_text_font_size = "12pt"
-    orders_total_fig.xaxis.axis_label_standoff = 10
-    orders_total_fig.yaxis.axis_label = 'Order numbers'
-    orders_total_fig.yaxis.axis_label_text_font_size = "12pt"
-    orders_total_fig.yaxis.axis_label_standoff = 10
-    orders_total_fig.xaxis.major_label_text_font_size = '11pt'
-    orders_total_fig.yaxis.major_label_text_font_size = '11pt'
-    orders_total_fig.xaxis[0].formatter = NumeralTickFormatter(format="0.00 a")
-    js_orders_total, div_orders_total = components(orders_total_fig)
-    
+    # Order numbers by employee
+    js_orders_total, div_orders_total = hbar(orders_total, 'order_number', 'employee')
+
+    time_dict = {'date': 'date', 'ww': 'week', 'mon': 'month', 'q': 'quarter'}
+
+    # Top 5 revenue employee trend
+    rev_top10 = revenue_total.loc[::-1, 'employee'].tolist()
+    # sql result is reversed thus first reverse to correct sequence
+    rev_top5 = rev_top10[: 5]
+    rev_trend_data = get_employee_trend(date_start, date_end, time_frame, rev_top5, 'revenue')
+    rev_trend_js, rev_trend_div = multiline(rev_trend_data, time_dict[time_frame], 'revenue', 'dollar', 
+        rev_top5[0], rev_top5[1], rev_top5[2], rev_top5[3], rev_top5[4])
+
+    # top 5 order number employee trend
+    num_top10 = orders_total.loc[::-1 , 'employee'].tolist()
+    num_top5 = num_top10[: 5]
+    num_trend_data = get_employee_trend(date_start, date_end, time_frame, num_top5, 'order_number')
+    num_trend_js, num_trend_div = multiline(num_trend_data, time_dict[time_frame], 'order_number', 'number',
+        num_top5[0], num_top5[1], num_top5[2], num_top5[3], num_top5[4])
+
     # gender relation distribution in order
     g = get_ec_gender(date_start, date_end)
     gender = pd.Series(g).reset_index(name='orders').rename(columns={'index':'gender'})
@@ -122,7 +93,6 @@ def employees():
 
     # state relation distribution in order
     s = get_ec_state(date_start, date_end)
-    print(s)
     state = pd.Series(s).reset_index(name='orders').rename(columns={'index':'state'})
     state['angle'] = state['orders']/state['orders'].sum() * 2*pi
     state['color'] = ["#3182bd", "#9ecae1"]
@@ -145,6 +115,10 @@ def employees():
         'employees.html',
         js_resources=js_resources,
         css_resources=css_resources,
+        rev_trend_js=rev_trend_js,
+        rev_trend_div=rev_trend_div,
+        num_trend_js=num_trend_js,
+        num_trend_div=num_trend_div,
         div_revenue_total=div_revenue_total,
         js_revenue_total=js_revenue_total,
         div_orders_total=div_orders_total,
@@ -180,8 +154,9 @@ def get_employee_revenue_total(date_start, date_end):
     """
     # need to make output to be ascending order to further plot be descending order
     rows = query(sql)
-    df = pd.DataFrame(rows, columns=['name', 'revenue'])
+    df = pd.DataFrame(rows, columns=['employee', 'revenue'])
     return df
+
 
 def get_employee_orders_total(date_start, date_end):
     """
@@ -199,7 +174,7 @@ def get_employee_orders_total(date_start, date_end):
     order by order_number asc
     """
     rows = query(sql)
-    df = pd.DataFrame(rows, columns=['name', 'orders'])
+    df = pd.DataFrame(rows, columns=['employee', 'order_number'])
     # print(df.head())
     return df
 
@@ -218,6 +193,68 @@ def get_avg_selling_per(date_start, date_end):
     """
     rows = query(sql)
     df = pd.DataFrame(rows)
+    return df
+
+
+def get_employee_trend(date_start, date_end, time_frame, employee, basis='revenue'):
+    """
+    Return the revenue trend of top 5 employee
+    Returned employee names replaced space to underscore
+    """
+    # employee = get_employee_top5(date_start, date_end, basis)
+
+    basis_dict = {'revenue': 'sum(sales.total)', 'order_number': 'count(sales.salesID)'}
+    time_dict = {'date': 'date', 'ww': 'week', 'mon': 'month', 'q': 'quarter'}
+
+    if time_frame == 'date' or time_frame is None: # None is used for switch page default frame
+        sql = f'''
+        select salesdate, 
+            sum(case when employee = '{employee[0]}' then {basis} else 0 end) as name1,
+            sum(case when employee = '{employee[1]}' then {basis} else 0 end) as name2,
+            sum(case when employee = '{employee[2]}' then {basis} else 0 end) as name3,
+            sum(case when employee = '{employee[3]}' then {basis} else 0 end) as name4,
+            sum(case when employee = '{employee[4]}' then {basis} else 0 end) as name5
+        from
+        (select salesdate, employee.name as employee, {basis_dict[basis]} as {basis}
+         from sales, employee
+         where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD')
+             and sales.employeeID = employee.employeeID
+             and employee.name in ('{employee[0]}', '{employee[1]}', '{employee[2]}', '{employee[3]}', '{employee[4]}')
+        group by salesdate, employee.name)
+        group by salesdate
+        order by salesdate
+        '''
+        # the reason use name1/2/3/4/5 here is because {employee[0]} includes space -> error
+        rows = query(sql)
+        # replace the space in name to underscore otherwise will have problem to access dataframe column
+        df = pd.DataFrame(columns=['date', employee[0].replace(" ", "_"), employee[1].replace(" ", "_"), employee[2].replace(" ", "_"), 
+            employee[3].replace(" ", "_"), employee[4].replace(" ", "_")])
+        for row in rows:
+            df.loc[len(df), :] = row
+        df['date'] = pd.to_datetime(df['date'])
+    else:
+        sql = f'''
+        select range, 
+            sum(case when employee = '{employee[0]}' then {basis} else 0 end) as name1,
+            sum(case when employee = '{employee[1]}' then {basis} else 0 end) as name2,
+            sum(case when employee = '{employee[2]}' then {basis} else 0 end) as name3,
+            sum(case when employee = '{employee[3]}' then {basis} else 0 end) as name4,
+            sum(case when employee = '{employee[4]}' then {basis} else 0 end) as name5
+        from
+        (select to_char(salesdate, '{time_frame}') as range, employee.name as employee, {basis_dict[basis]} as {basis}
+         from sales, employee
+         where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD')
+             and sales.employeeID = employee.employeeID
+             and employee.name in ('{employee[0]}', '{employee[1]}', '{employee[2]}', '{employee[3]}', '{employee[4]}')
+         group by to_char(salesdate, '{time_frame}'), employee.name)
+        group by range
+        order by range
+        '''
+        rows = query(sql)
+        df = pd.DataFrame(columns=[time_dict[time_frame], employee[0].replace(" ", "_"), employee[1].replace(" ", "_"), employee[2].replace(" ", "_"), 
+            employee[3].replace(" ", "_"), employee[4].replace(" ", "_")])
+        for row in rows:
+            df.loc[len(df), :] = row
     return df
 
 
