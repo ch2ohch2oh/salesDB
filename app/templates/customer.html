@@ -6,11 +6,24 @@
 
 {% block content %}
 
+<div class="row mt-5">
+    <div class="col">
+        <h5>Active customer number trend</h5>
+        {{ act_div|indent(4)|safe }}
+    </div>
+</div>
 
 <div class="row mt-5">
     <div class="col">
-        <h5>Geo distribution for orders</h5>
+        <h5>Geo distribution of order number for different category</h5>
         {{ geo_div|indent(4)|safe }}
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col">
+        <h5>Order number trend for customer in different geo area</h5>
+        {{ geo_trend_div|indent(4)|safe }}
     </div>
 </div>
 
@@ -30,7 +43,7 @@
 
 <div class="row mt-5">
     <div class="col">
-        <h5>Customer geo distribution</h5>
+        <h5>Top 10 state customer geo distribution</h5>
         {{ customer_geo_div|indent(4)|safe }}
     </div>
 </div>
@@ -39,7 +52,9 @@
 
 {% block more_js %}
 {{ js_resources|safe }}
+{{ act_js|safe }}
 {{ geo_js|safe }}
+{{ geo_trend_js|safe }}
 {{ repeat_js|safe }}
 {{ gender_js|safe }}
 {{ customer_geo_js|safe }}
