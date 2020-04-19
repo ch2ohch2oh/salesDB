@@ -113,7 +113,7 @@ def multiline(data, x, y, y_type='number', *args):
             legend_item.append((args[i], [plot]))
             i += 1
     # styling visual
-    legend = Legend(items=legend_item, location='center')
+    legend = Legend(items=legend_item, location='center', click_policy='hide')
     data_fig.add_layout(legend, 'right')
     data_fig.xaxis.axis_label = x.replace("_", " ").title()
     data_fig.xaxis.axis_label_text_font_size = "12pt"
