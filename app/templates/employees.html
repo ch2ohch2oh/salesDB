@@ -25,6 +25,13 @@
 </div>
 
 <div class="row mt-5">
+    <div class="col">
+        <h5>Revenue trend for top 5 employee</h5>
+        {{ rev_trend_div|indent(4)|safe }}
+    </div>
+</div>
+
+<div class="row mt-5">
     <div class="col text-center">
         <h5>Most orders employee</h5>
         <h3>{{most_orders_name}}</h3>
@@ -42,6 +49,12 @@
     </div>
 </div>
 
+<div class="row mt-5">
+    <div class="col">
+        <h5>Order number trend for top 5 employee</h5>
+        {{ num_trend_div|indent(4)|safe }}
+    </div>
+</div>
 
 <div class="row mt-5">
     <div class="col">
@@ -59,7 +72,9 @@
 {% block more_js %}
 {{ js_resources|safe }}
 {{ js_revenue_total|safe }}
+{{ rev_trend_js|safe }}
 {{ js_orders_total|safe }}
+{{ num_trend_js|safe }}
 {{ js_gender|safe }}
 {{ js_state|safe }}
 
