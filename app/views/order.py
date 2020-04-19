@@ -33,8 +33,8 @@ def order():
     avg_price = formatter(get_avg_price(date_start, date_end), 'dollar')
 
     # Revenue by categories
-    cat_data = get_rev_by_cat(date_start, date_end)
-    rev_js, rev_div = vbar(cat_data, 'category', 'revenue', 'dollar')
+    rev_data = get_rev_by_cat(date_start, date_end)
+    rev_js, rev_div = vbar(rev_data, 'category', 'revenue', 'dollar')
 
     # Order number by categories
     order_num_data = get_num_order_by_cat(date_start, date_end)
@@ -43,14 +43,14 @@ def order():
     time_dict = {'date': 'date', 'ww': 'week', 'mon': 'month', 'q': 'quarter'}
 
     # Top 5 revenue category trend
-    rev_top5 = get_cat_top5(date_start, date_end, 'revenue')
-    rev_trend_data = get_cat_trend(date_start, date_end, time_frame, 'revenue')
+    rev_top5 = rev_data.loc[: 5, 'category'].tolist()
+    rev_trend_data = get_cat_trend(date_start, date_end, time_frame, rev_top5, 'revenue')
     rev_trend_js, rev_trend_div = multiline(rev_trend_data, time_dict[time_frame], 'revenue', 'dollar', 
         rev_top5[0], rev_top5[1], rev_top5[2], rev_top5[3], rev_top5[4])
 
     # top 5 order number category trend
-    num_top5 = get_cat_top5(date_start, date_end, 'order_number')
-    num_trend_data = get_cat_trend(date_start, date_end, time_frame, 'order_number')
+    num_top5 = order_num_data.loc[: 5, 'category'].tolist()
+    num_trend_data = get_cat_trend(date_start, date_end, time_frame, num_top5, 'order_number')
     num_trend_js, num_trend_div = multiline(num_trend_data, time_dict[time_frame], 'order_number', 'number',
         num_top5[0], num_top5[1], num_top5[2], num_top5[3], num_top5[4])
 
@@ -128,7 +128,7 @@ def get_num_order_by_cat(date_start, date_end):
         and sales.productID = product.productID
         and product.categoryID = productcategory.categoryID
     group by productcategory.name
-    order by count(salesID)
+    order by count(salesID) desc
     """
     rows = query(sql)
     df = pd.DataFrame(columns=['category', 'order_number'])
@@ -178,35 +178,10 @@ def get_max_avg_min_price_by_cat(date_start, date_end):
     return df
 
 
-def get_cat_top5(date_start, date_end, basis='revenue'):
-    '''
-    select the top 5 category compare by order number or revenue
-    '''
-    basis_dict = {'revenue': 'sum(sales.total)', 'order_number': 'count(sales.salesID)'}
-    sql = f"""
-    select category
-    from (select productcategory.name as category, {basis_dict[basis]}
-          from sales, product, productcategory
-          where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD')  
-              and sales.productID = product.productID 
-              and product.productID = productcategory.categoryID
-          group by productcategory.name
-          order by {basis_dict[basis]} desc)
-    where rownum < 6
-    """
-    rows = query(sql)
-    category = []
-    for row in rows:
-        category.append(row[0])
-    return category
-
-
-def get_cat_trend(date_start, date_end, time_frame, basis='revenue'):
+def get_cat_trend(date_start, date_end, time_frame, category, basis='revenue'):
     """
     Return the revenue trend of top 5 category
     """
-    category = get_cat_top5(date_start, date_end, basis)
-
     basis_dict = {'revenue': 'sum(sales.total)', 'order_number': 'count(sales.salesID)'}
     time_dict = {'date': 'date', 'ww': 'week', 'mon': 'month', 'q': 'quarter'}
 

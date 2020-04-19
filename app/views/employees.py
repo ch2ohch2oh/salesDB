@@ -43,6 +43,7 @@ def employees():
 
     # most revenue
     revenue_total = get_employee_revenue_total(date_start, date_end)
+    # sql result is reversed due to the hbar layout
     most_revenue_name = revenue_total.loc[9, 'employee']
     
     # Revenue by employee
@@ -50,6 +51,7 @@ def employees():
 
     # most orders
     orders_total = get_employee_orders_total(date_start, date_end)
+    # sql result is reversed due to the hbar layout
     most_orders_name = orders_total.loc[9, 'employee']
     
     # Order numbers by employee
@@ -58,14 +60,17 @@ def employees():
     time_dict = {'date': 'date', 'ww': 'week', 'mon': 'month', 'q': 'quarter'}
 
     # Top 5 revenue employee trend
-    rev_top5 = get_employee_top5(date_start, date_end, 'revenue')
-    rev_trend_data = get_employee_trend(date_start, date_end, time_frame, 'revenue')
+    rev_top10 = revenue_total.loc[::-1, 'employee'].tolist()
+    # sql result is reversed thus first reverse to correct sequence
+    rev_top5 = rev_top10[: 5]
+    rev_trend_data = get_employee_trend(date_start, date_end, time_frame, rev_top5, 'revenue')
     rev_trend_js, rev_trend_div = multiline(rev_trend_data, time_dict[time_frame], 'revenue', 'dollar', 
         rev_top5[0], rev_top5[1], rev_top5[2], rev_top5[3], rev_top5[4])
 
     # top 5 order number employee trend
-    num_top5 = get_employee_top5(date_start, date_end, 'order_number')
-    num_trend_data = get_employee_trend(date_start, date_end, time_frame, 'order_number')
+    num_top10 = orders_total.loc[::-1 , 'employee'].tolist()
+    num_top5 = num_top10[: 5]
+    num_trend_data = get_employee_trend(date_start, date_end, time_frame, num_top5, 'order_number')
     num_trend_js, num_trend_div = multiline(num_trend_data, time_dict[time_frame], 'order_number', 'number',
         num_top5[0], num_top5[1], num_top5[2], num_top5[3], num_top5[4])
 
@@ -191,35 +196,12 @@ def get_avg_selling_per(date_start, date_end):
     return df
 
 
-def get_employee_top5(date_start, date_end, basis='revenue'):
-    '''
-    Select the top 5 employee compare by order number or revenue
-    Returned employee names have space
-    '''
-    basis_dict = {'revenue': 'sum(sales.total)', 'order_number': 'count(sales.salesID)'}
-    sql = f"""
-    select employee
-    from (select employee.name as employee, {basis_dict[basis]}
-          from sales, employee
-          where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD')
-              and sales.employeeID = employee.employeeID
-          group by employee.name
-          order by {basis_dict[basis]} desc)
-    where rownum < 6
-    """
-    rows = query(sql)
-    employee = []
-    for row in rows:
-        employee.append(row[0])
-    return employee
-
-
-def get_employee_trend(date_start, date_end, time_frame, basis='revenue'):
+def get_employee_trend(date_start, date_end, time_frame, employee, basis='revenue'):
     """
     Return the revenue trend of top 5 employee
     Returned employee names replaced space to underscore
     """
-    employee = get_employee_top5(date_start, date_end, basis)
+    # employee = get_employee_top5(date_start, date_end, basis)
 
     basis_dict = {'revenue': 'sum(sales.total)', 'order_number': 'count(sales.salesID)'}
     time_dict = {'date': 'date', 'ww': 'week', 'mon': 'month', 'q': 'quarter'}
