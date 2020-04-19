@@ -59,9 +59,7 @@ def employees():
 
     # Top 5 revenue employee trend
     rev_top5 = get_employee_top5(date_start, date_end, 'revenue')
-    print(rev_top5)
     rev_trend_data = get_employee_trend(date_start, date_end, time_frame, 'revenue')
-    print(rev_trend_data)
     rev_trend_js, rev_trend_div = multiline(rev_trend_data, time_dict[time_frame], 'revenue', 'dollar', 
         rev_top5[0], rev_top5[1], rev_top5[2], rev_top5[3], rev_top5[4])
 

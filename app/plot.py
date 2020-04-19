@@ -125,3 +125,28 @@ def multiline(data, x, y, y_type='number', *args):
     data_fig.yaxis.major_label_text_font_size = '11pt'
     data_fig.yaxis[0].formatter = NumeralTickFormatter(format=formats)
     return components(data_fig)
+
+def vbar_stack(data, x, y, y_type='number', color=["#da3337", "#4986ec"], alpha=0.8, *args):
+    x_range = data.loc[:, x]
+    data_source = ColumnDataSource(data)
+    formats = '$ 0.00 a' if y_type == 'dollar' else '0.00 a'
+    data_fig = figure(x_range = x_range, sizing_mode='scale_width', height=300, tools='hover', 
+        tooltips='$name: @$name{0.00 a}', toolbar_location=None)
+    # plot
+    plot = data_fig.vbar_stack(args, x=x, source=data_source, width=0.9, alpha=alpha, color=color)
+    # styling visual
+    legend_item =[]
+    for i in range(len(args)):
+        legend_item.append((args[i], [plot[i]]))
+    legend = Legend(items=legend_item, location='center')
+    data_fig.add_layout(legend, 'right')
+    data_fig.xaxis.axis_label = x.replace("_", " ").title()
+    data_fig.xaxis.axis_label_text_font_size = "12pt"
+    data_fig.xaxis.axis_label_standoff = 10
+    data_fig.yaxis.axis_label = y.replace("_", " ").title()
+    data_fig.yaxis.axis_label_text_font_size = "12pt"
+    data_fig.yaxis.axis_label_standoff = 10
+    data_fig.xaxis.major_label_text_font_size = '10pt'
+    data_fig.yaxis.major_label_text_font_size = '11pt'
+    data_fig.yaxis[0].formatter = NumeralTickFormatter(format=formats)
+    return components(data_fig)

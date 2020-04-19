@@ -10,6 +10,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from datetime import datetime
 
 from app.db import get_db, query
+from app.plot import vbar, vbar_stack
 
 import numpy as np
 import pandas as pd
@@ -24,92 +25,30 @@ def customer():
     '''
     date_start = request.form.get('date_start', '2018-01-01')
     date_end = request.form.get('date_end', '2018-01-31')
-    time_frame = request.form.get('time_frame')
-    # print(time_frame)
+    if request.form.get('time_frame') is None:
+        time_frame = 'date'
+    else:
+        time_frame = request.form.get('time_frame')
 
-    # Customer geo distribution
+    # Customer state distribution for top 10 states
     customer_geo_data = get_customer_by_geo(date_start, date_end)
-    customer_geo_source = ColumnDataSource(customer_geo_data)
-    customer_geo_hover = HoverTool(tooltips=[('Number', '@number{0.00 a}'), ('City name', '@city_name')])
-    customer_geo_fig = figure(x_range = customer_geo_data.city_name, sizing_mode='scale_width', height=200, 
-        tools=[customer_geo_hover], toolbar_location=None,)
-    customer_geo_fig.vbar(x='city_name', top='number', source=customer_geo_source, width=0.9, 
-        hover_color='red', hover_fill_alpha=0.8)
-    # styling visual
-    customer_geo_fig.xaxis.major_label_orientation = math.pi / 2
-    customer_geo_fig.xaxis.axis_label = 'City'
-    customer_geo_fig.xaxis.axis_label_text_font_size = "10pt"
-    customer_geo_fig.xaxis.axis_label_standoff = 10
-    customer_geo_fig.yaxis.axis_label = 'Order numbers'
-    customer_geo_fig.yaxis.axis_label_text_font_size = "12pt"
-    customer_geo_fig.yaxis.axis_label_standoff = 10
-    customer_geo_fig.xaxis.major_label_text_font_size = '11pt'
-    customer_geo_fig.yaxis.major_label_text_font_size = '11pt'
-    customer_geo_fig.yaxis[0].formatter = NumeralTickFormatter(format="$ 0.00 a")
-    customer_geo_js, customer_geo_div = components(customer_geo_fig)
+    customer_geo_js, customer_geo_div = vbar(customer_geo_data, 'state', 'number', 'number')
     
 
     # Repeat order (same prodcut > 3 times)
     repeat_data = get_repeat_order_by_time(date_start, date_end)
-    repeat_source = ColumnDataSource(repeat_data)
-    names = ['repeated', 'unrepeated']
-    repeat_fig = figure(x_range = repeat_data.category, sizing_mode='scale_width', height=200, 
-        tools='hover', tooltips='$name: @$name{0.00 a}', toolbar_location=None,)
-    repeat_fig.vbar_stack(names, x='category', width=0.9, alpha=0.8, color=[ "#3cba54", "#f4c20b"], legend_label=names, 
-        source=repeat_source,)
-    # styling visual
-    repeat_fig.xaxis.axis_label = 'Category'
-    repeat_fig.xaxis.axis_label_text_font_size = "12pt"
-    repeat_fig.xaxis.axis_label_standoff = 10
-    repeat_fig.yaxis.axis_label = 'Order numbers'
-    repeat_fig.yaxis.axis_label_text_font_size = "12pt"
-    repeat_fig.yaxis.axis_label_standoff = 10
-    repeat_fig.xaxis.major_label_text_font_size = '11pt'
-    repeat_fig.yaxis.major_label_text_font_size = '11pt'
-    repeat_fig.yaxis[0].formatter = NumeralTickFormatter(format="0.00 a")
-    repeat_js, repeat_div = components(repeat_fig)
+    repeat_js, repeat_div = vbar_stack(repeat_data, 'category', 'order_number', 'number', ["#3cba54", "#f4c20b"], 0.8, 
+        'repeated', 'unrepeated')
 
     # Order number by gender for each category
     gender_data = get_num_order_by_gender_cat(date_start, date_end)
-    gender_source = ColumnDataSource(gender_data)
-    gender_fig = figure(x_range = gender_data.category, sizing_mode='scale_width', height=200, 
-        tools='hover', tooltips='$name: @$name{$ 0.00 a}', toolbar_location=None,)
-    gender = ['female', 'male']
-    gender_fig.vbar_stack(gender, x='category', width=0.9, alpha=0.6, color=["#da3337", "#4986ec"], legend_label=gender, 
-        source=gender_source)
-    # styling visual
-    gender_fig.xaxis.axis_label = 'Category'
-    gender_fig.xaxis.axis_label_text_font_size = "12pt"
-    gender_fig.xaxis.axis_label_standoff = 10
-    gender_fig.yaxis.axis_label = 'Order numbers'
-    gender_fig.yaxis.axis_label_text_font_size = "12pt"
-    gender_fig.yaxis.axis_label_standoff = 10
-    gender_fig.xaxis.major_label_text_font_size = '11pt'
-    gender_fig.yaxis.major_label_text_font_size = '11pt'
-    gender_fig.yaxis[0].formatter = NumeralTickFormatter(format="0.00 a")
-    gender_js, gender_div = components(gender_fig)
+    gender_js, gender_div = vbar_stack(gender_data, 'category', 'order_number', 'number', ["#da3337", "#4986ec"], 0.8, 
+        'female', 'male')
 
     # Order number by geo for each category
     geo_data = get_num_order_by_geo(date_start, date_end)
-    geo_source = ColumnDataSource(geo_data)
-    geo_fig = figure(x_range = geo_data.category, sizing_mode='scale_width', height=200, tools='hover', 
-        tooltips='$name: @$name{$ 0.00 a}', toolbar_location=None, )
-    region = ['northeast', 'east', 'southeast', 'north', 'south', 'west', 'southwest', 
-        'northwest', 'middle']
-    geo_fig.vbar_stack(region, x='category', width=0.9, color=brewer['Spectral'][9], legend_label=region,
-        source=geo_source)
-    # styling visual
-    geo_fig.xaxis.axis_label = 'Category'
-    geo_fig.xaxis.axis_label_text_font_size = "12pt"
-    geo_fig.xaxis.axis_label_standoff = 10
-    geo_fig.yaxis.axis_label = 'Order Numbers'
-    geo_fig.yaxis.axis_label_text_font_size = "12pt"
-    geo_fig.yaxis.axis_label_standoff = 10
-    geo_fig.xaxis.major_label_text_font_size = '11pt'
-    geo_fig.yaxis.major_label_text_font_size = '11pt'
-    geo_fig.yaxis[0].formatter = NumeralTickFormatter(format="0.00 a")
-    geo_js, geo_div = components(geo_fig)
-    # show(geo_fig)
+    geo_js, geo_div = vbar_stack(geo_data, 'category', 'order_number', 'number', brewer['Spectral'][9], 1, 
+        'northeast', 'east', 'southeast', 'north', 'south', 'west', 'southwest', 'northwest', 'middle')
 
     # grab the static resources
     js_resources = INLINE.render_js()
@@ -135,16 +74,20 @@ def customer():
 # restful api
 def get_customer_by_geo(date_start, date_end):
     """
-    Return the customer numbers for each zipcode.
+    Return the customer numbers for top 10 states
     """
     sql = f"""
-    select count(customer.customerID) as num, city.cityname as city_name
-    from customer, city
-    where customer.city = city.cityID
-    group by city.cityname
+    select *
+    from
+    (select count(customer.customerID) as num, city.state as state
+     from customer, city
+     where customer.city = city.cityID
+     group by city.state
+     order by count(customer.customerID) desc)
+    where rownum < 11
     """
     rows = query(sql)
-    df = pd.DataFrame(columns=['number', 'city_name'])
+    df = pd.DataFrame(columns=['number', 'state'])
     for row in rows:
         df.loc[len(df), :] = row
     return df
