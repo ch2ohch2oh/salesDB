@@ -69,7 +69,6 @@ def employees():
     num_trend_js, num_trend_div = multiline(num_trend_data, time_dict[time_frame], 'order_number', 'number',
         num_top5[0], num_top5[1], num_top5[2], num_top5[3], num_top5[4])
 
-    
     # gender relation distribution in order
     g = get_ec_gender(date_start, date_end)
     gender = pd.Series(g).reset_index(name='orders').rename(columns={'index':'gender'})
