@@ -301,3 +301,23 @@ def get_customer_by_geo(date_start, date_end):
     for row in rows:
         df.loc[len(df), :] = row
     return df
+
+def get_customer_by_geo1(date_start, date_end):
+
+    sql = f"""
+    select count(customer.customerID) as num, city.state as state
+    from customer, city
+    where customer.city = city.cityID
+    group by city.state
+    """
+    res = query(sql)
+    return res
+
+@app.route('/map')
+def get_customer_by_geo2():
+    date_start = request.form.get('date_start', '2018-01-01')
+    date_end = request.form.get('date_end', '2018-01-31')
+    res = []
+    for tup in get_customer_by_geo1(date_start,date_end):
+        res.append({"name":(tup[1]),"value":int(tup[0])})
+    return jsonify({"data": res})

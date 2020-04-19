@@ -234,3 +234,26 @@ def get_cat_trend(date_start, date_end, time_frame, category, basis='revenue'):
         for row in rows:
             df.loc[len(df), :] = row
     return df
+
+def get_revenue_by_category1(date_start, date_end):
+
+    sql = f"""
+    select productcategory.name, sum(sales.total)
+    from sales, product, productcategory
+    where salesdate between to_date('{date_start}', 'YYYY-MM-DD') and to_date('{date_end}', 'YYYY-MM-DD') 
+        and sales.productID = product.productID 
+        and product.productID = productcategory.categoryID
+    group by productcategory.name
+    order by sum(sales.total) desc"""
+    res = query(sql)
+    return res
+
+@app.route('/ct1')
+def get_revenue_by_category2():
+    date_start = request.form.get('date_start', '2018-01-01')
+    date_end = request.form.get('date_end', '2018-01-31')
+    res = []
+    for tup in get_revenue_by_category1(date_start,date_end):
+
+        res.append({"name": (tup[0]), "value": int(tup[1]/1000000000)})
+    return jsonify({"data": res})

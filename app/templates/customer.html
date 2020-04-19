@@ -8,6 +8,12 @@
 
 <div class="row mt-5">
     <div class="col">
+        <div id="map" style="width: inherit;height: 500px;"></div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col">
         <h5>Active customer number trend</h5>
         {{ act_div|indent(4)|safe }}
     </div>
@@ -58,4 +64,8 @@
 {{ repeat_js|safe }}
 {{ gender_js|safe }}
 {{ customer_geo_js|safe }}
+<script src="../static/js/echarts.min.js"></script>
+<script src="../static/js/jquery-1.11.1.min.js"></script>
+<script src="../static/js/customer.js"></script>
+
 {% endblock %}
